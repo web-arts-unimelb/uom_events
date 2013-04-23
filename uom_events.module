@@ -1,0 +1,179 @@
+<?php
+/**
+ * @file
+ */
+define('UOM_EVENTS_VERSION', 1);
+
+/**
+ * Implements hook_permission().
+ */
+function uom_events_permission() {
+  return array(
+    'administer uom events' => array(
+      'title' => t('Administer UoM Events'),
+      'description' => t('Configure the UoM events API.')
+    ),
+    'view uom events' => array(
+      'title' => t('View UoM Events'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function uom_events_menu() {
+  $items['admin/config/services/uom-events'] = array(
+    'title' => t('UoM Events'),
+    'description' => t('Configure the University of Melbourne event API.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('uom_events_admin_form'),
+    'access arguments' => array('administer uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.admin.inc',
+  );
+
+  $items['events'] = array(
+    'title' => t('Events'),
+    'page callback' => 'uom_events_page',
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['events/%'] = array(
+    'title' => t('Events'),
+    'page callback' => 'uom_events_page',
+    'page arguments' => array(1),
+    'access arguments' => array('view uom events'),
+    'type' => MENU_CALLBACK,
+    'file' => 'uom_events.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function uom_events_theme() {
+  return array();
+}
+
+/**
+ * Hit an endpoint and return data.
+ *
+ * @param $uri
+ *   The uri to hit.
+ *
+ * @return
+ *   An array of objects.
+ */
+function uom_events_api_fetch($uri) {
+  $token = variable_get('uom_events_api_token', '');
+
+  $options = array(
+    'query' => array(
+      'auth_token' => $token,
+    ),
+  );
+  $url = url($uri, $options);
+  dpm($url);
+  $request = drupal_http_request($url);
+
+  if ($request->code != 200) {
+    drupal_set_message(t('Unable to fetch event data from API. Error @code: @error', array('@code' => $request->code, '@error' => $request->error)), 'error');
+    return NULL;
+  }
+
+  $data = json_decode($request->data);
+  drupal_set_message(t('Loaded data for @count events', array('@count' => count($data))));
+
+  return $data;
+}
+
+/**
+ * Construct an endpoint URI based on a query.
+ *
+ * @param $action
+ *   A keyed array whose key is the query paramater and whose value
+ *   contains the key value to search for.
+ *
+ *   If there is no array key, the value is used as key as well.
+ *
+ * @return
+ *   A valid URI.
+ */
+function uom_events_api_uri($action = array()) {
+
+  // If no array key, substritute the value.
+  $uri = variable_get('uom_events_api_uri', '');
+
+  $query = '';
+  foreach ($action as $key => $val) {
+    $query .= '/' . $key . '/' . $val;
+  }
+
+  return $uri . '/api/v' . UOM_EVENTS_VERSION . $query;
+}
+
+/*
+
+  List all upcoming events:
+    http://events.unimelb.edu.au/api/v1/events/current
+
+
+    List all upcoming events with a specific tag:
+      http://events.unimelb.edu.au/api/v1/events/current/tagged/:tagged
+
+
+      List all upcoming events of a specific type:
+        http://events.unimelb.edu.au/api/v1/events/current/type/:type
+
+
+        List all upcoming events from a specific faculty or department:
+          http://events.unimelb.edu.au/api/v1/events/current/hosted_by/:hosted_by
+
+
+          Get all details of a specific event by ID:
+            http://events.unimelb.edu.au/api/v1/events/:event_id
+
+
+            Get a list of all presenters:
+              http://events.unimelb.edu.au/api/v1/presenters
+
+
+              Get a presenter by ID:
+                http://events.unimelb.edu.au/api/v1/presenters/:presenter_id
+
+
+                Get a list of all recordings:
+                  http://events.unimelb.edu.au/api/v1/recordings
+
+
+                  Get a recording by ID:
+                    http://events.unimelb.edu.au/api/v1/recordings/:recording_id
+
+
+                    Get a list of all tags:
+                      http://events.unimelb.edu.au/api/v1/tags
+
+
+                      Get a list of all tags in upcoming events:
+                        http://events.unimelb.edu.au/api/v1/tags/current
+
+
+                        Get a list of all event types:
+                          http://events.unimelb.edu.au/api/v1/event_types
+
+
+                          Get a list of all event types in upcoming events:
+                            http://events.unimelb.edu.au/api/v1/event_types/current
+
+
+                            Get a list of all host:
+                              http://events.unimelb.edu.au/api/v1/hosts
+
+
+                              Get a list of all host in upcoming events:
+                                http://events.unimelb.edu.au/api/v1/hosts/current
+ */

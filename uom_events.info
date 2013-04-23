@@ -1,4 +1,7 @@
 name = UoM Events
 description = Display events from the <a href="http://events.unimelb.edu.au/">http://events.unimelb.edu.au</a> site.
 
+package = University of Melbourne
 core = 7.x
+
+configure = admin/config/services/uom-events
