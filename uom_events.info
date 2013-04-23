@@ -1,0 +1,4 @@
+name = UoM Events
+description = Display events from the <a href="http://events.unimelb.edu.au/">http://events.unimelb.edu.au</a> site.
+
+core = 7.x
