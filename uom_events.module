@@ -55,8 +55,19 @@ function uom_events_menu() {
 /**
  * Implements hook_theme().
  */
-function uom_events_theme() {
-  return array();
+function uom_events_theme($existing, $type, $theme, $path) {
+  return array(
+    'uom_event_list' => array(
+      'variables' => array('events' => NULL),
+      'file' => 'uom_events.theme.inc',
+      'template' => 'uom-event-list',
+    ),
+    'uom_event' => array(
+      'variables' => array('event' => NULL),
+      'file' => 'uom_events.theme.inc',
+      'template' => 'uom-event',
+    ),
+  );
 }
 
 /**
@@ -69,23 +80,32 @@ function uom_events_theme() {
  *   An array of objects.
  */
 function uom_events_api_fetch($uri) {
-  $token = variable_get('uom_events_api_token', '');
 
-  $options = array(
-    'query' => array(
-      'auth_token' => $token,
-    ),
-  );
-  $url = url($uri, $options);
-  dpm($url);
-  $request = drupal_http_request($url);
+  $hash = md5($uri);
+  if ($cache = cache_get('uom_events_' . $hash)) {
+    return $cache->data;
+  }
+  else {
+    $token = variable_get('uom_events_api_token', '');
 
-  if ($request->code != 200) {
-    drupal_set_message(t('Unable to fetch event data from API. Error @code: @error', array('@code' => $request->code, '@error' => $request->error)), 'error');
-    return NULL;
+    $options = array(
+      'query' => array('auth_token' => $token),
+    );
+    $url = url($uri, $options);
+    dpm($url);
+    $request = drupal_http_request($url);
+
+    if ($request->code != 200) {
+      drupal_set_message(t('Unable to fetch event data from API. Error @code: @error', array('@code' => $request->code, '@error' => $request->error)), 'error');
+      return NULL;
+    }
+
+    $data = json_decode($request->data);
+
+    // Cache it for at least 15 minutes.
+    cache_set('uom_events_' . $hash, $request->data, 'cache', time() + 900);
   }
 
-  $data = json_decode($request->data);
   drupal_set_message(t('Loaded data for @count events', array('@count' => count($data))));
 
   return $data;
@@ -177,3 +197,7 @@ function uom_events_api_uri($action = array()) {
                               Get a list of all host in upcoming events:
                                 http://events.unimelb.edu.au/api/v1/hosts/current
  */
+
+function uom_events_theme_registry_alter(&$theme_registry) {
+  dpm($theme_registry);
+}
