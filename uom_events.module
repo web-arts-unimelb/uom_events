@@ -53,6 +53,33 @@ function uom_events_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'uom_events.pages.inc',
   );
+
+  $items['events/tag/%'] = array(
+    'title' => t('Events'),
+    'page callback' => 'uom_events_filter_page',
+    'page arguments' => array('tag', 2),
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['events/type/%'] = array(
+    'title' => t('Events'),
+    'page callback' => 'uom_events_filter_page',
+    'page arguments' => array('type', 2),
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['events/host/%'] = array(
+    'title' => t('Events'),
+    'page callback' => 'uom_events_filter_page',
+    'page arguments' => array('host', 2),
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
   return $items;
 }
 
@@ -175,7 +202,7 @@ function uom_events_preprocess_uom_event(&$variables) {
  */
 function uom_events_preprocess_uom_event_list(&$variables) {
   $events = $variables['events'];
-  unset($variables['events']);
+  $variables['events'] = array();;
 
   // Process the list of event objects into an array of template variables.
   // Wednesday, May 22, 2013 - 18:00–19:00
