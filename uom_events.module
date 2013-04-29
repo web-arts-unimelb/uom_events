@@ -205,7 +205,7 @@ function uom_events_preprocess_uom_event_list(&$variables) {
       'host'             => (empty($event->host)) ? '' : check_plain($event->host),
       'image'            => (empty($event->img_url)) ? '' : $event->img_url,
       'type'             => (empty($event->event_type)) ? '' : $event->event_type,
-      'has_livestream'   => (empty($event->has_livestream)) ? '' : $event->chas_livestream,
+      'has_livestream'   => (empty($event->has_livestream)) ? '' : $event->has_livestream,
       'sold_out'         => (empty($event->sold_out)) ? '' : $event->sold_out,
       'cancelled'        => (empty($event->cancelled)) ? '' : $event->cancelled,
     );
