@@ -7,6 +7,5 @@
  * Implements hook_uninstall().
  */
 function uom_events_uninstall() {
-  variable_del('uom_events_api_url');
-  variable_del('uom_events_api_token');
+  variable_del('uom_events_token');
 }

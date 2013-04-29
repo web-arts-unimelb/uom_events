@@ -2,7 +2,11 @@
 /**
  * @file
  */
-define('UOM_EVENTS_VERSION', 1);
+
+/**
+ * Include the API library.
+ */
+require_once(drupal_get_path('module', 'uom_events') .'/EventsAPI/EventsAPI.php');
 
 /**
  * Implements hook_permission().
@@ -59,145 +63,151 @@ function uom_events_theme($existing, $type, $theme, $path) {
   return array(
     'uom_event_list' => array(
       'variables' => array('events' => NULL),
-      'file' => 'uom_events.theme.inc',
+      'base hook' => 'uom_event_list',
       'template' => 'uom-event-list',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
     ),
     'uom_event' => array(
       'variables' => array('event' => NULL),
-      'file' => 'uom_events.theme.inc',
+      'base hook' => 'uom_event',
       'template' => 'uom-event',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),
+    'uom_event_location' => array(
+      'variables' => array('location' => NULL),
+      'file' => 'uom_events.theme.inc',
+    ),
+    'uom_event_information' => array(
+      'variables' => array('information' => NULL),
+      'file' => 'uom_events.theme.inc',
+    ),
+    'uom_event_booking' => array(
+      'variables' => array('booking' => NULL),
+      'file' => 'uom_events.theme.inc',
     ),
   );
 }
 
 /**
- * Hit an endpoint and return data.
+ * Helper that fetches data via drupal_http_request() and caches the result.
  *
- * @param $uri
- *   The uri to hit.
+ * @param $url
+ *   A valid HTTP URL.
+ * @param $options
+ *   An array of additional options to pass to drupal_http_request().
  *
  * @return
- *   An array of objects.
+ *   A HTTP response object.
  */
-function uom_events_api_fetch($uri) {
-
-  $hash = md5($uri);
+function uom_events_fetcher($url, $options) {
+  $hash = md5($url);
   if ($cache = cache_get('uom_events_' . $hash)) {
     return $cache->data;
   }
   else {
-    $token = variable_get('uom_events_api_token', '');
-
-    $options = array(
-      'query' => array('auth_token' => $token),
-    );
-    $url = url($uri, $options);
-    dpm($url);
-    $request = drupal_http_request($url);
-
-    if ($request->code != 200) {
-      drupal_set_message(t('Unable to fetch event data from API. Error @code: @error', array('@code' => $request->code, '@error' => $request->error)), 'error');
-      return NULL;
+    $response = drupal_http_request($url, $options);
+    if ($response->code != 200) {
+      drupal_set_message(t('Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message)));
     }
-
-    $data = json_decode($request->data);
-
-    // Cache it for at least 15 minutes.
-    cache_set('uom_events_' . $hash, $request->data, 'cache', time() + 900);
+    else {
+      // Cache it for at least 15 minutes, but really should have tweakable expiry.
+      cache_set('uom_events_' . $hash, $response, 'cache', time() + 900);
+    }
   }
-
-  drupal_set_message(t('Loaded data for @count events', array('@count' => count($data))));
-
-  return $data;
+  return $response;
 }
 
 /**
- * Construct an endpoint URI based on a query.
+ * Helper that parses a drupal_http_request() and does some error checking.
  *
- * @param $action
- *   A keyed array whose key is the query paramater and whose value
- *   contains the key value to search for.
- *
- *   If there is no array key, the value is used as key as well.
+ * @param $response.
+ *   A HTTP response object.
  *
  * @return
- *   A valid URI.
+ *   An object or array of objects on success, FALSE on failure.
  */
-function uom_events_api_uri($action = array()) {
-
-  // If no array key, substritute the value.
-  $uri = variable_get('uom_events_api_uri', '');
-
-  $query = '';
-  foreach ($action as $key => $val) {
-    $query .= '/' . $key . '/' . $val;
+function uom_events_parser($response) {
+  if ($response->code == 200) {
+    return @json_decode($response->data);
   }
-
-  return $uri . '/api/v' . UOM_EVENTS_VERSION . $query;
+  drupal_set_message(t('Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message)));
+  return FALSE;
 }
 
-/*
 
-  List all upcoming events:
-    http://events.unimelb.edu.au/api/v1/events/current
-
-
-    List all upcoming events with a specific tag:
-      http://events.unimelb.edu.au/api/v1/events/current/tagged/:tagged
-
-
-      List all upcoming events of a specific type:
-        http://events.unimelb.edu.au/api/v1/events/current/type/:type
-
-
-        List all upcoming events from a specific faculty or department:
-          http://events.unimelb.edu.au/api/v1/events/current/hosted_by/:hosted_by
-
-
-          Get all details of a specific event by ID:
-            http://events.unimelb.edu.au/api/v1/events/:event_id
-
-
-            Get a list of all presenters:
-              http://events.unimelb.edu.au/api/v1/presenters
-
-
-              Get a presenter by ID:
-                http://events.unimelb.edu.au/api/v1/presenters/:presenter_id
-
-
-                Get a list of all recordings:
-                  http://events.unimelb.edu.au/api/v1/recordings
-
-
-                  Get a recording by ID:
-                    http://events.unimelb.edu.au/api/v1/recordings/:recording_id
-
-
-                    Get a list of all tags:
-                      http://events.unimelb.edu.au/api/v1/tags
-
-
-                      Get a list of all tags in upcoming events:
-                        http://events.unimelb.edu.au/api/v1/tags/current
-
-
-                        Get a list of all event types:
-                          http://events.unimelb.edu.au/api/v1/event_types
-
-
-                          Get a list of all event types in upcoming events:
-                            http://events.unimelb.edu.au/api/v1/event_types/current
-
-
-                            Get a list of all host:
-                              http://events.unimelb.edu.au/api/v1/hosts
-
-
-                              Get a list of all host in upcoming events:
-                                http://events.unimelb.edu.au/api/v1/hosts/current
+/**
+ * Preprocess an event object for the template file.
  */
+function uom_events_preprocess_uom_event(&$variables) {
+  $event = $variables['event'];
+  unset($variables['event']);
 
-function uom_events_theme_registry_alter(&$theme_registry) {
-  dpm($theme_registry);
+  $timestamp_start = strtotime($event->start_time);
+  $timestamp_end   = strtotime($event->end_time);
+
+  $variables['id']                = $event->id;
+  $variables['title']             = check_plain($event->title);
+  $variables['link']              = url('events/'. $event->id);
+  $variables['description']       = (empty($event->description)) ? '' : check_plain($event->description);
+  $variables['description_html']  = (empty($event->description_html)) ? '' : filter_xss($event->description_html);
+  $variables['description_text']  = (empty($event->description_text)) ? '' : check_plain($event->description_text);
+  $variables['timestamp_start']   = $event->start_time;
+  $variables['timestamp_end']     = $event->end_time;
+  $variables['date']              = format_date($timestamp_start, 'long');
+  $variables['date_start']        = (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'l, F j, Y');
+  $variables['date_end']          = (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'l, F j, Y');
+  $variables['time_start']        = (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'G:i');
+  $variables['time_end']          = (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'G:i');
+  $variables['speaker']           = (empty($event->speaker)) ? '' : check_plain($event->speaker);
+  $variables['location']          = (empty($event->location)) ? '' : theme('uom_event_location', array('location' => $event->location));
+  $variables['information']       = (empty($event->information)) ? '' : theme('uom_event_information', array('information' => $event->information));
+  $variables['booking']           = (empty($event->booking)) ? '' : theme('uom_event_booking', array('booking' => $event->booking));
+  $variables['host']              = (empty($event->host)) ? '' : check_plain($event->host);
+  $variables['image']             = (empty($event->img_url)) ? '' : $event->img_url;
+  $variables['type']              = (empty($event->event_type)) ? '' : $event->event_type;
+  $variables['bookings_required'] = (empty($event->bookings_required)) ? '' : $event->bookings_required;
+  $variables['sold_out']          = (empty($event->sold_out)) ? '' : $event->sold_out;
+  $variables['cancelled']         = (empty($event->cancelled)) ? '' : $event->cancelled;
+}
+
+/**
+ * Preprocess an event list array for the template file.
+ */
+function uom_events_preprocess_uom_event_list(&$variables) {
+  $events = $variables['events'];
+  unset($variables['events']);
+
+  // Process the list of event objects into an array of template variables.
+  // Wednesday, May 22, 2013 - 18:00–19:00
+  foreach ($events as $event) {
+
+    $timestamp_start = strtotime($event->start_time);
+    $timestamp_end   = strtotime($event->end_time);
+
+    $variables['events'][$event->id] = array(
+      'id'               => $event->id,
+      'title'            => check_plain($event->title),
+      'link'             => url('events/'. $event->id),
+      'description'      => (empty($event->description)) ? '' : check_plain($event->description),
+      'description_html' => (empty($event->description_html)) ? '' : filter_xss($event->description_html),
+      'description_text' => (empty($event->description_text)) ? '' : check_plain($event->description_text),
+      'timestamp_start'  => $event->start_time,
+      'timestamp_end'    => $event->end_time,
+      'date'             => format_date($timestamp_start, 'long'),
+      'date_start'       => (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'l, F j, Y'),
+      'date_end'         => (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'l, F j, Y'),
+      'time_start'       => (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'G:i'),
+      'time_end'         => (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'G:i'),
+      'speaker'          => (empty($event->speaker)) ? '' : check_plain($event->speaker),
+      'location'         => (empty($event->location)) ? '' : theme('uom_event_location', array('location' => $event->location)),
+      'information'      => (empty($event->information)) ? '' : theme('uom_event_information', array('information' => $event->information)),
+      'booking'          => (empty($event->booking)) ? '' : theme('uom_event_booking', array('booking' => $event->booking)),
+      'host'             => (empty($event->host)) ? '' : check_plain($event->host),
+      'image'            => (empty($event->img_url)) ? '' : $event->img_url,
+      'type'             => (empty($event->event_type)) ? '' : $event->event_type,
+      'has_livestream'   => (empty($event->has_livestream)) ? '' : $event->chas_livestream,
+      'sold_out'         => (empty($event->sold_out)) ? '' : $event->sold_out,
+      'cancelled'        => (empty($event->cancelled)) ? '' : $event->cancelled,
+    );
+  }
 }
