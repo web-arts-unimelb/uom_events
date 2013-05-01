@@ -84,6 +84,29 @@ function uom_events_menu() {
 }
 
 /**
+ * Implements hook_libraries_info().
+ */
+function uom_events_libraries_info() {
+  $libraries['eventsapi'] = array(
+    'name' => 'Events API',
+    'vendor url' => 'http://events.unimelb.edu.au/',
+    'download url' => 'https://github.com/cafuego/uom_events_api',
+    'path' => 'EventsAPI',
+    'version arguments' => array(
+      'file' => 'EventsAPI.php',
+      // Best practice: Document the actual version strings for later reference.
+      //  const EVENTS_API = 'api/v1';
+      'pattern' => '/const EVENTS_API = \'api/v(\d+)/\'',
+      'lines' => 25,
+    ),
+    'files' => array(
+      'php' => array('EventsAPI.php'),
+    ),
+  );
+  return $libraries;
+}
+
+/**
  * Implements hook_theme().
  */
 function uom_events_theme($existing, $type, $theme, $path) {
@@ -160,7 +183,6 @@ function uom_events_parser($response) {
   drupal_set_message(t('Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message)));
   return FALSE;
 }
-
 
 /**
  * Preprocess an event object for the template file.

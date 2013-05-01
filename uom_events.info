@@ -5,3 +5,5 @@ package = University of Melbourne
 core = 7.x
 
 configure = admin/config/services/uom-events
+
+dependencies[] = libraries
