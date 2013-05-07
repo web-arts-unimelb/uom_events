@@ -60,3 +60,27 @@ function uom_events_filter_page($filter, $value) {
 
   return theme('uom_event_list', array('events' => $data));
 }
+
+/**
+ * Debug page handler.
+ */
+function uom_events_page_devel($id = NULL) {
+  drupal_set_title(t('Events'));
+
+  $api = new EventsAPI(variable_get('uom_events_token', ''));
+  $api->setCallback('drupal_http_request', array());
+  $api->setCallback('uom_events_fetcher');
+  $api->setParser('uom_events_parser');
+
+  if (is_numeric($id)) {
+    $api->displayFull();
+    $data = $api->getEvent($id, TRUE);
+    drupal_set_title($data->title);
+  }
+  else {
+    $data = $api->currentEvents();
+  }
+
+  dpm($data);
+  return '';
+}

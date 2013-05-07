@@ -45,12 +45,29 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
+  $items['events/devel'] = array(
+    'title' => t('Events'),
+    'page callback' => 'uom_events_page_devel',
+    'access arguments' => array('access devel information'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'uom_events.pages.inc',
+  );
+
   $items['events/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_page',
     'page arguments' => array(1),
     'access arguments' => array('view uom events'),
     'type' => MENU_CALLBACK,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['events/%/devel'] = array(
+    'title' => t('Devel'),
+    'page callback' => 'uom_events_page_devel',
+    'page arguments' => array(1),
+    'access arguments' => array('access devel info'),
+    'type' => MENU_LOCAL_TASK,
     'file' => 'uom_events.pages.inc',
   );
 
@@ -139,7 +156,8 @@ function uom_events_theme($existing, $type, $theme, $path) {
 }
 
 /**
- * Helper that fetches data via drupal_http_request() and caches the result.
+ * Helper that fetches data via drupal_http_request() and optionally
+ * caches the result.
  *
  * @param $url
  *   A valid HTTP URL.
@@ -150,8 +168,10 @@ function uom_events_theme($existing, $type, $theme, $path) {
  *   A HTTP response object.
  */
 function uom_events_fetcher($url, $options) {
+  $period = variable_get('cache_lifetime', 0);
+
   $hash = md5($url);
-  if ($cache = cache_get('uom_events_' . $hash)) {
+  if ($period  && $cache = cache_get('uom_events_' . $hash)) {
     return $cache->data;
   }
   else {
@@ -159,9 +179,9 @@ function uom_events_fetcher($url, $options) {
     if ($response->code != 200) {
       drupal_set_message(t('Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message)));
     }
-    else {
+    elseif ($period) {
       // Cache it for at least 15 minutes, but really should have tweakable expiry.
-      cache_set('uom_events_' . $hash, $response, 'cache', time() + 900);
+      cache_set('uom_events_' . $hash, $response, 'cache', time() + $period);
     }
   }
   return $response;
