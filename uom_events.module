@@ -171,7 +171,7 @@ function uom_events_fetcher($url, $options) {
   $period = variable_get('cache_lifetime', 0);
 
   $hash = md5($url);
-  if ($period  && $cache = cache_get('uom_events_' . $hash)) {
+  if ($period  && $cache = cache_get('uom_events:' . $hash)) {
     return $cache->data;
   }
   else {
@@ -181,7 +181,7 @@ function uom_events_fetcher($url, $options) {
     }
     elseif ($period) {
       // Cache it for at least 15 minutes, but really should have tweakable expiry.
-      cache_set('uom_events_' . $hash, $response, 'cache', time() + $period);
+      cache_set('uom_events:' . $hash, $response, 'cache', time() + $period);
     }
   }
   return $response;
