@@ -32,7 +32,7 @@ function uom_events_page($id = NULL) {
  * Filter page handler.
  */
 function uom_events_filter_page($filter, $value) {
-  drupal_set_title(t('@value Events', array('@value' => $value)));
+  drupal_set_title(t('@value Events', array('@value' => ucwords($value))));
 
   $api = new EventsAPI(variable_get('uom_events_token', ''));
   $api->setCallback('drupal_http_request', array());
