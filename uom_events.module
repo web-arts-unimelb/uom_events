@@ -114,6 +114,66 @@ function uom_events_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'uom_events.pages.inc',
   );
+
+  $items['presenters'] = array(
+    'title' => t('Presenters'),
+    'page callback' => 'uom_events_presenters_page',
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['presenters/%'] = array(
+    'title' => t('Presenters'),
+    'page callback' => 'uom_events_presenters_page',
+    'page arguments' => array(1),
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['recordings'] = array(
+    'title' => t('Recordings'),
+    'page callback' => 'uom_events_recordings_page',
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['recordings/%'] = array(
+    'title' => t('Recordings'),
+    'page callback' => 'uom_events_recordings_page',
+    'page arguments' => array(1),
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['tags'] = array(
+    'title' => t('Tags'),
+    'page callback' => 'uom_events_tags_page',
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['tags/%'] = array(
+    'title' => t('Tags'),
+    'page callback' => 'uom_events_tags_page',
+    'page arguments' => array(1),
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
+  $items['hosts'] = array(
+    'title' => t('Hosts'),
+    'page callback' => 'uom_events_hosts_page',
+    'access arguments' => array('view uom events'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'uom_events.pages.inc',
+  );
+
   return $items;
 }
 
@@ -169,6 +229,18 @@ function uom_events_theme($existing, $type, $theme, $path) {
       'variables' => array('booking' => NULL),
       'file' => 'uom_events.theme.inc',
     ),
+    'uom_event_presenter_list' => array(
+      'variables' => array('presenters' => NULL),
+      'base hook' => 'uom_event_presenter_list',
+      'template' => 'uom-event-presenter-list',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),
+    'uom_event_presenter' => array(
+      'variables' => array('presenter' => NULL),
+      'base hook' => 'uom_event_presenter',
+      'template' => 'uom-event-presenter',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),
   );
 }
 
@@ -222,6 +294,17 @@ function uom_events_parser($response) {
 }
 
 /**
+ * Wrapper that returns an initialised API class.
+ */
+function uom_events_api() {
+  $api = new EventsAPI(variable_get('uom_events_token', ''));
+  $api->setCallback('uom_events_fetcher');
+  $api->setParser('uom_events_parser');
+
+  return $api;
+}
+
+/**
  * Preprocess an event object for the template file.
  */
 function uom_events_preprocess_uom_event(&$variables) {
@@ -239,6 +322,8 @@ function uom_events_preprocess_uom_event(&$variables) {
   $variables['description_text']  = (empty($event->description_text)) ? '' : check_plain($event->description_text);
   $variables['timestamp_start']   = $timestamp_start;
   $variables['timestamp_end']     = $timestamp_end;
+  $variables['datestamp_start']   = $event->start_time;
+  $variables['datestamp_end']     = $event->end_time;
   $variables['date']              = format_date($timestamp_start, 'long');
   $variables['date_start']        = (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'l, F j, Y');
   $variables['date_end']          = (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'l, F j, Y');
@@ -278,8 +363,10 @@ function uom_events_preprocess_uom_event_list(&$variables) {
       'description'      => (empty($event->description)) ? '' : check_plain($event->description),
       'description_html' => (empty($event->description_html)) ? '' : filter_xss($event->description_html),
       'description_text' => (empty($event->description_text)) ? '' : check_plain($event->description_text),
-      'timestamp_start'  => $timestamp_starttimestamp_end,
+      'timestamp_start'  => $timestamp_start,
       'timestamp_end'    => $timestamp_end,
+      'datestamp_start'  => $event->start_time,
+      'datestamp_end'    => $event->end_time,
       'date'             => format_date($timestamp_start, 'long'),
       'date_start'       => (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'l, F j, Y'),
       'date_end'         => (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'l, F j, Y'),
@@ -296,6 +383,58 @@ function uom_events_preprocess_uom_event_list(&$variables) {
       'sold_out'         => (empty($event->sold_out)) ? '' : $event->sold_out,
       'cancelled'        => (empty($event->cancelled)) ? '' : $event->cancelled,
       'original'         => url($event->link),
+    );
+  }
+}
+
+/**
+ * Preprocess a presenter object for the template file.
+ */
+function uom_events_preprocess_uom_event_presenter(&$variables) {
+  $presenter = $variables['presenter'];
+  unset($variables['presenter']);
+
+  $variables['id']                          = $presenter->id;
+  $variables['link']                        = url('presenters/'. $presenter->id);
+  $variables['title']                       = check_plain($presenter->title);
+  $variables['first_name']                  = check_plain($presenter->first_name);
+  $variables['last_name']                   = check_plain($presenter->last_name);
+  $variables['post_nominal']                = check_plain($presenter->post_nominal);
+  $variables['full_name']                   = t('@title @first @last @post', array('@title' => $presenter->title, '@first' => $presenter->first_name, '@last' => $presenter->last_name, '@post' => $presenter->post_nominal));
+  $variables['organisation']                = check_plain($presenter->organisation);
+  $variables['position_title']              = check_plain($presenter->position_title);
+  $variables['biography']                   = check_plain($presenter->biography);
+  $variables['biography_html']              = filter_xss($presenter->biography_html);
+  $variables['biography_text']              = check_plain($presenter->biography_text);
+  $variables['country']                     = check_plain($presenter->country);
+  $variables['content_approved_by_speaker'] = $presenter->content_approved_by_speaker;
+  $variables['find_an_expert_url']          = url($presenter->find_an_expert_url);
+  $variables['photo_url']                   = url($presenter->photo_url);
+  $variables['photo']                       = theme('image', array('path' => $presenter->photo_url));
+  $variables['original']                    = $presenter->link;
+}
+
+/**
+ * Preprocess a presenter list array for the template file.
+ */
+function uom_events_preprocess_uom_event_presenter_list(&$variables) {
+  $presenters = $variables['presenters'];
+  $variables['presenters'] = array();
+
+  foreach ($presenters as $presenter) {
+    $variables['presenters'][$presenter->id] = array(
+      'id'             => $presenter->id,
+      'link'           => url('presenters/' . $presenter->id),
+      'title'          => check_plain($presenter->title),
+      'first_name'     => check_plain($presenter->first_name),
+      'last_name'      => check_plain($presenter->last_name),
+      'post_nominal'   => check_plain($presenter->post_nominal),
+      'full_name'      => t('@title @first @last @post', array('@title' => $presenter->title, '@first' => $presenter->first_name, '@last' => $presenter->last_name, '@post' => $presenter->post_nominal)),
+      'organisation'   => check_plain($presenter->organisation),
+      'position_title' => check_plain($presenter->position_title),
+      'photo_url'      => url($presenter->photo_url),
+      'photo'          => theme('image', array('path' => $presenter->photo_url)),
+      'original'       => $presenter->link,
     );
   }
 }
