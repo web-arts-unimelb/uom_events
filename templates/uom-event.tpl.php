@@ -22,10 +22,10 @@
 <div class="uom-event">
   <span class="date-display-single"><?php print $date_start; ?></span>
   <?php if ($time_start): ?>
-    <span class="date-display-start" property="dc:date" datatype="xsd:dateTime" content="<?php print $timestamp_start; ?>"><?php print $time_start; ?></span>
+    <span class="date-display-start" property="dc:date" datatype="xsd:dateTime" content="<?php print $datestamp_start; ?>"><?php print $time_start; ?></span>
   <?php endif; ?>
   <?php if ($time_end): ?>
-    –<span class="date-display-end" property="dc:date" datatype="xsd:dateTime" content="<?php print $timestamp_end; ?>"><?php print $time_end; ?></span>
+    –<span class="date-display-end" property="dc:date" datatype="xsd:dateTime" content="<?php print $datestamp_end; ?>"><?php print $time_end; ?></span>
   <?php endif; ?>
 
   <?php if ($speaker): ?>

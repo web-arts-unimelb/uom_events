@@ -25,10 +25,10 @@
     <h3><a href="<?php print $event['link']; ?>"><?php print $event['title']; ?></a></h3>
     <span class="date-display-single"><?php print $event['date_start']; ?></span>
     <?php if ($event['time_start']): ?>
-      <span class="date-display-start" property="dc:date" datatype="xsd:dateTime" content="<?php print $event['timestamp_start']; ?>"><?php print $event['time_start']; ?></span>
+      <span class="date-display-start" property="dc:date" datatype="xsd:dateTime" content="<?php print $event['datestamp_start']; ?>"><?php print $event['time_start']; ?></span>
     <?php endif; ?>
     <?php if ($event['time_end']): ?>
-      –<span class="date-display-end" property="dc:date" datatype="xsd:dateTime" content="<?php print $event['timestamp_end']; ?>"><?php print $event['time_end']; ?></span>
+      –<span class="date-display-end" property="dc:date" datatype="xsd:dateTime" content="<?php print $event['datestamp_end']; ?>"><?php print $event['time_end']; ?></span>
     <?php endif; ?>
 
     <?php if ($event['speaker']): ?>
