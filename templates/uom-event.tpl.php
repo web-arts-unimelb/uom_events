@@ -32,8 +32,6 @@
     <h4>Speaker: <?php print $speaker; ?></h4>
   <?php endif; ?>
 
-  <p><strong>Date:</strong><?php print $date; ?><br>
-
   <?php if ($description_html): ?>
     <?php print $description_html; ?>
   <?php endif; ?>
