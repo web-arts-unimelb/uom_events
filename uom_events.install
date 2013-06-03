@@ -4,6 +4,29 @@
  */
 
 /**
+ * Implements hook_requirements().
+ */
+function uom_events_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break during installation.
+  $t = get_t();
+
+  $library = libraries_detect('EventsAPI');
+
+  $requirements['uom_events'] = array(
+    'title' => $t('UoM Events API'),
+    'value' => (empty($library['installed'])) ? $library['error message'] : $t('Version @version', array('@version' => $library['version'])),
+  );
+
+  if (empty($library['installed'])) {
+    $requirements['uom_events']['description'] = t('You can download the <a href="@url">@name</a> library from <a href="@downloadurl">@downloadurl</a>. Please save it to a directory called %path under your Drupal libraries directory.', array('@name' => $library['name'], '@url' => $library['vendor url'], '@downloadurl' => $library['download url'], '%path' => $library['machine name']));
+    $requirements['uom_events']['severity'] = REQUIREMENT_ERROR;
+  }
+
+  return $requirements;
+}
+
+/**
  * Implements hook_uninstall().
  */
 function uom_events_uninstall() {
