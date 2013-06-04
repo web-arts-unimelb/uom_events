@@ -212,6 +212,9 @@ function uom_events_block_info($delta) {
     $blocks[$delta]['info'] = (empty($settings['description'])) ? t('UoM Events @delta', array('@delta' => $delta)) : $settings['description'];
     $blocks[$delta]['cache'] = DRUPAL_CACHE_PER_USER;
   }
+
+  $blocks['meta']['info'] = t('UoM Events Metadata');
+  $blocks['meta']['cache'] = DRUPAL_CACHE_PER_PAGE;
   return $blocks;
 }
 
@@ -219,6 +222,10 @@ function uom_events_block_info($delta) {
  * Implements hook_block_configure().
  */
 function uom_events_block_configure($delta) {
+  if ($delta == 'meta') {
+    return array();
+  }
+
   $settings = variable_get('uom_events_block_' . $delta, array());
   $form['description'] = array(
     '#type' => 'textfield',
@@ -252,6 +259,10 @@ function uom_events_block_configure($delta) {
  * Implements hook_block_save().
  */
 function uom_events_block_save($delta = '', $edit = array()) {
+  if ($delta == 'meta') {
+    return;
+  }
+
   $settings = array(
     'description' => $edit['description'],
     'tag'         => $edit['tag'],
@@ -271,6 +282,23 @@ function uom_events_block_view($delta = '') {
 
   // Grab some events via the API.
   $api = uom_events_api();
+
+  // Do an early return for the metadata block.
+  if ($delta == 'meta') {
+    $api->displayFull();
+    $data = $api->getEvent(arg(1), TRUE);
+
+    return array(
+      'subject' => check_plain($data->title),
+      'content' => array(
+        'image'       => array('#markup' => (empty($data->img_url)) ? '' : theme('image', array('path' => $data->img_url))),
+        'speaker'     => array('#markup' => (empty($data->speaker)) ? '' : check_plain($data->speaker)),
+        'location'    => array('#markup' => (empty($data->location)) ? '' : theme('uom_event_location', array('location' => $data->location))),
+        'information' => array('#markup' => (empty($data->information)) ? '' : theme('uom_event_information', array('information' => $data->information))),
+        'booking'     => array('#markup' => (empty($data->booking)) ? '' : theme('uom_event_booking', array('booking' => $data->booking))),
+      ),
+    );
+  }
 
   if (!empty($settings['tag'])) {
     $data = $api->currentEventsByTag($settings['tag']);
@@ -450,12 +478,14 @@ function uom_events_preprocess_uom_event(&$variables) {
   $event = $variables['event'];
   unset($variables['event']);
 
+  $path = variable_get('uom_events_path', 'events');
+
   $timestamp_start = strtotime($event->start_time);
   $timestamp_end   = strtotime($event->end_time);
 
   $variables['id']                = $event->id;
   $variables['title']             = check_plain($event->title);
-  $variables['link']              = url('events/'. $event->id);
+  $variables['link']              = url($path . '/' . $event->id);
   $variables['description']       = (empty($event->description)) ? '' : check_plain($event->description);
   $variables['description_html']  = (empty($event->description_html)) ? '' : filter_xss($event->description_html, uom_events_allowed_tags());
   $variables['description_text']  = (empty($event->description_text)) ? '' : check_plain($event->description_text);
@@ -489,7 +519,9 @@ function uom_events_preprocess_uom_event(&$variables) {
  */
 function uom_events_preprocess_uom_event_list(&$variables) {
   $events = $variables['events'];
-  $variables['events'] = array();;
+  $variables['events'] = array();
+
+  $path = variable_get('uom_events_path', 'events');
 
   // Process the list of event objects into an array of template variables.
   // Wednesday, May 22, 2013 - 18:00–19:00
@@ -501,7 +533,7 @@ function uom_events_preprocess_uom_event_list(&$variables) {
     $variables['events'][$event->id] = array(
       'id'               => $event->id,
       'title'            => check_plain($event->title),
-      'link'             => url('events/'. $event->id),
+      'link'             => url($path . '/' . $event->id),
       'description'      => (empty($event->description)) ? '' : check_plain($event->description),
       'description_html' => (empty($event->description_html)) ? '' : filter_xss($event->description_html, uom_events_allowed_tags()),
       'description_text' => (empty($event->description_text)) ? '' : check_plain($event->description_text),
@@ -540,7 +572,9 @@ function uom_events_preprocess_uom_event_list(&$variables) {
 function uom_events_preprocess_uom_event_block(&$variables) {
   $events   = $variables['events'];
   $settings = $variables['settings'];
-  $variables['events'] = array();;
+  $variables['events'] = array();
+
+  $path = variable_get('uom_events_path', 'events');
 
   $variables['delta'] = $settings['delta'];
   $variables['more']  = (empty($settings['more'])) ? '' : l(t('More »'), $settings['more']);
@@ -555,7 +589,7 @@ function uom_events_preprocess_uom_event_block(&$variables) {
     $variables['events'][$event->id] = array(
       'id'               => $event->id,
       'title'            => check_plain($event->title),
-      'link'             => url('events/'. $event->id),
+      'link'             => url($path . '/' . $event->id),
       'timestamp_start'  => $timestamp_start,
       'timestamp_end'    => $timestamp_end,
       'datestamp_start'  => $event->start_time,
@@ -583,8 +617,10 @@ function uom_events_preprocess_uom_event_presenter(&$variables) {
   $presenter = $variables['presenter'];
   unset($variables['presenter']);
 
+  $path = variable_get('uom_events_path', 'events');
+
   $variables['id']                          = $presenter->id;
-  $variables['link']                        = url('presenters/'. $presenter->id);
+  $variables['link']                        = url($path . '/presenters/' . $presenter->id);
   $variables['title']                       = check_plain($presenter->title);
   $variables['first_name']                  = check_plain($presenter->first_name);
   $variables['last_name']                   = check_plain($presenter->last_name);
@@ -610,10 +646,12 @@ function uom_events_preprocess_uom_event_presenter_list(&$variables) {
   $presenters = $variables['presenters'];
   $variables['presenters'] = array();
 
+  $path = variable_get('uom_events_path', 'events');
+
   foreach ($presenters as $presenter) {
     $variables['presenters'][$presenter->id] = array(
       'id'             => $presenter->id,
-      'link'           => url('presenters/' . $presenter->id),
+      'link'           => url($path . '/presenters/' . $presenter->id),
       'title'          => check_plain($presenter->title),
       'first_name'     => check_plain($presenter->first_name),
       'last_name'      => check_plain($presenter->last_name),
