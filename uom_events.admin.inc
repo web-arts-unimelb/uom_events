@@ -32,7 +32,7 @@ function uom_events_admin_form() {
     '#default_value' => variable_get('uom_events_tag', ''),
   );
 
-  $form['uom_event_blocks'] = array(
+  $form['uom_events_blocks'] = array(
     '#title' => t('Event blocks'),
     '#description' => t('Enter the number of event blocks you want use. Each event blok can be configured with its own tag filter'),
     '#type' => 'textfield',
