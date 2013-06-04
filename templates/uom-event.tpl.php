@@ -16,7 +16,6 @@
  *   $speaker
  *   $location
  */
-
 ?>
 
 <div class="uom-event">

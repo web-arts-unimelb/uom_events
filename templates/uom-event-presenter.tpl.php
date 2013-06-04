@@ -24,6 +24,8 @@
  */
 ?>
 
-<div style="float: right;"><?php print $photo; ?></div>
+<?php if ($photo): ?>
+  <div style="float: right;"><a href="<?php print $original; ?>"><?php print $photo; ?></a></div>
+<?php endif; ?>
 <?php print $position_title; ?> <?php print $organisation; ?>
 <?php print $biography_html; ?>

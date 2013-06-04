@@ -10,6 +10,7 @@ function uom_events_page($id = NULL) {
   drupal_set_title(t('Events'));
 
   $api = uom_events_api();
+  $tag = variable_get('uom_events_tag', '');
 
   if (is_numeric($id)) {
     $api->displayFull();
@@ -18,7 +19,13 @@ function uom_events_page($id = NULL) {
     $output = theme('uom_event', array('event' => $data));
   }
   else {
-    $data = $api->currentEvents();
+    if (!empty($tag)) {
+      drupal_set_title(t('@tag Events', array('@tag' => ucwords($tag))));
+      $data = $api->currentEventsByTag($tag);
+    }
+    else {
+      $data = $api->currentEvents();
+    }
     $output = theme('uom_event_list', array('events' => $data));
   }
 

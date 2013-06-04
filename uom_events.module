@@ -12,6 +12,7 @@ function uom_events_init() {
   foreach ($library['files']['php'] as $file) {
     require_once $library['library path'] . '/' . $file;
   }
+  drupal_add_css(drupal_get_path('module', 'uom_events') . '/css/uom_events.css');
 }
 
 /**
@@ -54,7 +55,9 @@ function uom_events_menu() {
     'file' => 'uom_events.admin.inc',
   );
 
-  $items['events'] = array(
+  $path = variable_get('uom_events_path', 'events');
+
+  $items[$path] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_page',
     'access arguments' => array('view uom events'),
@@ -62,7 +65,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['events/devel'] = array(
+  $items[$path . '/devel'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_page_devel',
     'access arguments' => array('access devel information'),
@@ -70,7 +73,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['events/%'] = array(
+  $items[$path . '/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_page',
     'page arguments' => array(1),
@@ -79,7 +82,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['events/%/devel'] = array(
+  $items[$path . '/%/devel'] = array(
     'title' => t('Devel'),
     'page callback' => 'uom_events_page_devel',
     'page arguments' => array(1),
@@ -88,7 +91,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['events/tag/%'] = array(
+  $items[$path . '/tag/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_filter_page',
     'page arguments' => array('tag', 2),
@@ -97,7 +100,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['events/type/%'] = array(
+  $items[$path . '/type/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_filter_page',
     'page arguments' => array('type', 2),
@@ -106,7 +109,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['events/host/%'] = array(
+  $items[$path . '/host/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_filter_page',
     'page arguments' => array('host', 2),
@@ -115,7 +118,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['presenters'] = array(
+  $items[$path . '/presenters'] = array(
     'title' => t('Presenters'),
     'page callback' => 'uom_events_presenters_page',
     'access arguments' => array('view uom events'),
@@ -123,7 +126,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['presenters/%'] = array(
+  $items[$path . '/presenters/%'] = array(
     'title' => t('Presenters'),
     'page callback' => 'uom_events_presenters_page',
     'page arguments' => array(1),
@@ -132,7 +135,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['recordings'] = array(
+  $items[$path . '/recordings'] = array(
     'title' => t('Recordings'),
     'page callback' => 'uom_events_recordings_page',
     'access arguments' => array('view uom events'),
@@ -140,7 +143,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['recordings/%'] = array(
+  $items[$path . '/recordings/%'] = array(
     'title' => t('Recordings'),
     'page callback' => 'uom_events_recordings_page',
     'page arguments' => array(1),
@@ -149,7 +152,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['tags'] = array(
+  $items[$path . '/tags'] = array(
     'title' => t('Tags'),
     'page callback' => 'uom_events_tags_page',
     'access arguments' => array('view uom events'),
@@ -157,7 +160,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['tags/%'] = array(
+  $items[$path . '/tags/%'] = array(
     'title' => t('Tags'),
     'page callback' => 'uom_events_tags_page',
     'page arguments' => array(1),
@@ -166,7 +169,7 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items['hosts'] = array(
+  $items[$path . 'hosts'] = array(
     'title' => t('Hosts'),
     'page callback' => 'uom_events_hosts_page',
     'access arguments' => array('view uom events'),
@@ -198,6 +201,95 @@ function uom_events_libraries_info() {
     ),
   );
   return $libraries;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function uom_events_block_info($delta) {
+  for ($delta = 0; $delta < variable_get('uom_events_blocks', 1); $delta++) {
+    $settings = variable_get('uom_events_block_' . $delta, array());
+    $blocks[$delta]['info'] = (empty($settings['description'])) ? t('UoM Events @delta', array('@delta' => $delta)) : $settings['description'];
+    $blocks[$delta]['cache'] = DRUPAL_CACHE_PER_USER;
+  }
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function uom_events_block_configure($delta) {
+  $settings = variable_get('uom_events_block_' . $delta, array());
+  $form['description'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Block description'),
+    '#default_value' => $settings['description'],
+    '#description' => t('A brief description of your block. Used on the <a href="@block-overview-page">block overview page</a>.', array('@block-overview-page' => url('admin/build/block')))
+  );
+  $form['tag'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Tag'),
+    '#default_value' => $settings['tag'],
+    '#description' => t('Enter the tag to filter events for this block.'),
+  );
+  $form['number'] = array(
+    '#type' => 'textfield',
+    '#size' => 2,
+    '#title' => t('Events'),
+    '#default_value' => $settings['number'],
+    '#description' => t('Enter the number of events that should be shown on this block.'),
+  );
+  $form['more'] = array(
+    '#type' => 'textfield',
+    '#title' => t('More link'),
+    '#default_value' => $settings['more'],
+    '#description' => t('Enter a url path to use as the "more" link on this block. Leave empty for no "more" link.'),
+  );
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function uom_events_block_save($delta = '', $edit = array()) {
+  $settings = array(
+    'description' => $edit['description'],
+    'tag'         => $edit['tag'],
+    'number'      => $edit['number'],
+    'more'        => $edit['more'],
+  );
+  variable_set('uom_events_block_' . $delta, $settings);
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function uom_events_block_view($delta = '') {
+  // Load settings for the current block.
+  $settings = variable_get('uom_events_block_' . $delta, array());
+  $settings['delta'] = $delta;
+
+  // Grab some events via the API.
+  $api = uom_events_api();
+
+  if (!empty($settings['tag'])) {
+    $data = $api->currentEventsByTag($settings['tag']);
+  }
+  else {
+    $data = $api->currentEvents();
+  }
+
+  // Shear off superfluous elements...
+  if (!empty($settings['number'])) {
+    $data = array_slice($data, 0, $settings['number']);
+  }
+  $output = theme('uom_event_block', array('events' => $data, 'settings' => $settings));
+
+  // Output block HTML
+  return array(
+    'subject' => t('Events @delta', array('@delta' => $delta)),
+    'content' => '<div id="uom-events-' . $delta . '">' . $output . '</div>',
+  );
 }
 
 /**
@@ -239,6 +331,12 @@ function uom_events_theme($existing, $type, $theme, $path) {
       'variables' => array('presenter' => NULL),
       'base hook' => 'uom_event_presenter',
       'template' => 'uom-event-presenter',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),
+    'uom_event_block' => array(
+      'variables' => array('events' => NULL, 'settings' => array()),
+      'base hook' => 'uom_event_block',
+      'template' => 'uom-event-block',
       'path' => drupal_get_path('module', 'uom_events') . '/templates',
     ),
   );
@@ -305,6 +403,47 @@ function uom_events_api() {
 }
 
 /**
+ * Return an array of tags that should not get removed by filter_xss().
+ *
+ * If an array of tags is defined in $conf['uom_events_allowed_tags'] then
+ * that array will be returned. Otherwise, the default set of tags is used.
+ */
+function uom_events_allowed_tags() {
+  global $conf;
+  if (!empty($conf['uom_events_allowed_tags'])) {
+    return $conf['uom_events_allowed_tags'];
+  }
+  return array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd');
+}
+
+/**
+ * Return an array of date() format strings that should be used for all templates.
+ *
+ * If an array of tags is defined in $conf['uom_events_date_formats'] then that
+ * array will be used.
+ */
+function uom_events_date_formats() {
+  global $conf;
+  if (!empty($conf['uom_events_date_formats'])) {
+    return $conf['uom_events_date_formats'];
+  }
+  return array('j', 'M', 'Y');
+}
+
+/**
+ * Return a timestamp formatted every which way.
+ */
+function uom_events_date_fiddle($timestamp) {
+  $output = array();
+
+  foreach (uom_events_date_formats() as $format) {
+    $output[$format] = date($format, $timestamp);
+  }
+
+  return $output;
+}
+
+/**
  * Preprocess an event object for the template file.
  */
 function uom_events_preprocess_uom_event(&$variables) {
@@ -318,7 +457,7 @@ function uom_events_preprocess_uom_event(&$variables) {
   $variables['title']             = check_plain($event->title);
   $variables['link']              = url('events/'. $event->id);
   $variables['description']       = (empty($event->description)) ? '' : check_plain($event->description);
-  $variables['description_html']  = (empty($event->description_html)) ? '' : filter_xss($event->description_html);
+  $variables['description_html']  = (empty($event->description_html)) ? '' : filter_xss($event->description_html, uom_events_allowed_tags());
   $variables['description_text']  = (empty($event->description_text)) ? '' : check_plain($event->description_text);
   $variables['timestamp_start']   = $timestamp_start;
   $variables['timestamp_end']     = $timestamp_end;
@@ -340,6 +479,9 @@ function uom_events_preprocess_uom_event(&$variables) {
   $variables['sold_out']          = (empty($event->sold_out)) ? '' : $event->sold_out;
   $variables['cancelled']         = (empty($event->cancelled)) ? '' : $event->cancelled;
   $variables['original']          = url($event->link);
+
+  $variables['dates']['start']    = uom_events_date_fiddle($timestamp_start);
+  $variables['dates']['end']      = uom_events_date_fiddle($timestamp_end);
 }
 
 /**
@@ -361,7 +503,7 @@ function uom_events_preprocess_uom_event_list(&$variables) {
       'title'            => check_plain($event->title),
       'link'             => url('events/'. $event->id),
       'description'      => (empty($event->description)) ? '' : check_plain($event->description),
-      'description_html' => (empty($event->description_html)) ? '' : filter_xss($event->description_html),
+      'description_html' => (empty($event->description_html)) ? '' : filter_xss($event->description_html, uom_events_allowed_tags()),
       'description_text' => (empty($event->description_text)) ? '' : check_plain($event->description_text),
       'timestamp_start'  => $timestamp_start,
       'timestamp_end'    => $timestamp_end,
@@ -383,6 +525,53 @@ function uom_events_preprocess_uom_event_list(&$variables) {
       'sold_out'         => (empty($event->sold_out)) ? '' : $event->sold_out,
       'cancelled'        => (empty($event->cancelled)) ? '' : $event->cancelled,
       'original'         => url($event->link),
+
+      'dates'            => array(
+                              'start' => uom_events_date_fiddle($timestamp_start),
+                              'end'   => uom_events_date_fiddle($timestamp_end),
+      ),
+    );
+  }
+}
+
+/**
+ * Preprocess an event list array for the block template file.
+ */
+function uom_events_preprocess_uom_event_block(&$variables) {
+  $events   = $variables['events'];
+  $settings = $variables['settings'];
+  $variables['events'] = array();;
+
+  $variables['delta'] = $settings['delta'];
+  $variables['more']  = (empty($settings['more'])) ? '' : l(t('More »'), $settings['more']);
+
+  // Process the list of event objects into an array of template variables.
+  // Wednesday, May 22, 2013 - 18:00–19:00
+  foreach ($events as $event) {
+
+    $timestamp_start = strtotime($event->start_time);
+    $timestamp_end   = strtotime($event->end_time);
+
+    $variables['events'][$event->id] = array(
+      'id'               => $event->id,
+      'title'            => check_plain($event->title),
+      'link'             => url('events/'. $event->id),
+      'timestamp_start'  => $timestamp_start,
+      'timestamp_end'    => $timestamp_end,
+      'datestamp_start'  => $event->start_time,
+      'datestamp_end'    => $event->end_time,
+      'date'             => format_date($timestamp_start, 'long'),
+      'date_start'       => (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'l, F j, Y'),
+      'date_end'         => (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'l, F j, Y'),
+      'time_start'       => (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'G:i'),
+      'time_end'         => (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'G:i'),
+
+      'original'         => $event->link,
+
+      'dates'            => array(
+                              'start' => uom_events_date_fiddle($timestamp_start),
+                              'end'   => uom_events_date_fiddle($timestamp_end),
+                            ),
     );
   }
 }
@@ -404,7 +593,7 @@ function uom_events_preprocess_uom_event_presenter(&$variables) {
   $variables['organisation']                = check_plain($presenter->organisation);
   $variables['position_title']              = check_plain($presenter->position_title);
   $variables['biography']                   = check_plain($presenter->biography);
-  $variables['biography_html']              = filter_xss($presenter->biography_html);
+  $variables['biography_html']              = filter_xss($presenter->biography_html, uom_events_allowed_tags());
   $variables['biography_text']              = check_plain($presenter->biography_text);
   $variables['country']                     = check_plain($presenter->country);
   $variables['content_approved_by_speaker'] = $presenter->content_approved_by_speaker;

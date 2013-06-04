@@ -1,0 +1,29 @@
+/* Add some CSS */
+.uom-event-date {
+  background-color: #dddddd;
+  float: left;
+  margin-right: 5px;
+  text-align: center;
+  width: 36px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+.uom-event-date .uom-event-date-day {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.uom-event-date .uom-event-date-my {
+  background-color: #003366;
+  color: white;
+  display: block;
+  font-size: 0.7em;
+  border-bottom-right-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+}
