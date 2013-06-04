@@ -285,6 +285,10 @@ function uom_events_block_view($delta = '') {
 
   // Do an early return for the metadata block.
   if ($delta == 'meta') {
+    // Early return if not looking at an event.
+    if (!is_numeric(arg(1))) {
+      return;
+    }
     $api->displayFull();
     $data = $api->getEvent(arg(1), TRUE);
 
@@ -359,6 +363,24 @@ function uom_events_theme($existing, $type, $theme, $path) {
       'variables' => array('presenter' => NULL),
       'base hook' => 'uom_event_presenter',
       'template' => 'uom-event-presenter',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),
+    'uom_event_recording_list' => array(
+      'variables' => array('recordings' => NULL),
+      'base hook' => 'uom_event_recording_list',
+      'template' => 'uom-event-recording-list',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),
+    'uom_event_tag_list' => array(
+      'variables' => array('tags' => NULL),
+      'base hook' => 'uom_event_tag_list',
+      'template' => 'uom-event-tag-list',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),
+    'uom_event_host_list' => array(
+      'variables' => array('hosts' => NULL),
+      'base hook' => 'uom_event_host_list',
+      'template' => 'uom-event-host-list',
       'path' => drupal_get_path('module', 'uom_events') . '/templates',
     ),
     'uom_event_block' => array(
@@ -662,6 +684,67 @@ function uom_events_preprocess_uom_event_presenter_list(&$variables) {
       'photo_url'      => url($presenter->photo_url),
       'photo'          => theme('image', array('path' => $presenter->photo_url)),
       'original'       => $presenter->link,
+    );
+  }
+}
+
+/**
+ * Preprocess a recording list array for the template file.
+ */
+function uom_events_preprocess_uom_event_recording_list(&$variables) {
+  $recordings = $variables['recordings'];
+  $variables['recordings'] = array();
+
+  $path = variable_get('uom_events_path', 'events');
+
+  foreach ($recordings as $recording) {
+    $variables['recordings'][$recording->id] = array(
+      'id'             => $recording->id,
+      'link'           => url($path . '/recordings/' . $recording->id),
+      'title'          => check_plain($recording->title),
+      'source'         => check_plain($recording->source),
+      'thumbnail_url'  => url($recording->thumbnail_url),
+      'thumbnail'      => theme('image', array('path' => $recording->thumbnail_url)),
+      'watch_url'      => url($recording->watch_url),
+      'original'       => url($recording->link),
+    );
+  }
+}
+
+/**
+ * Preprocess a tag list array for the template file.
+ */
+function uom_events_preprocess_uom_event_tag_list(&$variables) {
+  $tags = $variables['tags'];
+  $variables['tags'] = array();
+
+  $path = variable_get('uom_events_path', 'events');
+
+  foreach ($tags as $tag) {
+    $variables['tags'][$tag->tag] = array(
+      'title'          => check_plain($tag->tag),
+      'tag'            => check_plain($tag->tag),
+      'count_events'   => check_plain($tag->count_events),
+      'link'           => url($path . '/tag/' . $tag->tag),
+    );
+  }
+}
+
+/**
+ * Preprocess a host list array for the template file.
+ */
+function uom_events_preprocess_uom_event_host_list(&$variables) {
+  $hosts = $variables['hosts'];
+  $variables['hosts'] = array();
+
+  $path = variable_get('uom_events_path', 'events');
+
+  foreach ($hosts as $hosts) {
+    $variables['hosts'][$host->id] = array(
+      'id'             => $host->id,
+      'link'           => url($path . '/recordings/' . $host->id),
+      'title'          => check_plain($host->title),
+      'original'       => url($host->link),
     );
   }
 }
