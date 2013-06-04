@@ -88,7 +88,7 @@ function uom_events_presenters_page($id = NULL) {
 }
 
 function uom_events_recordings_page($id = NULL) {
-  drupal_set_title(t('Events'));
+  drupal_set_title(t('Event Recordings'));
 
   $api = uom_events_api();
 
@@ -96,36 +96,36 @@ function uom_events_recordings_page($id = NULL) {
     $api->displayFull();
     $data = $api->getRecording($id, TRUE);
     drupal_set_title($data->title);
-    $output = theme('uom_event', array('event' => $data));
+    $output = theme('uom_event_recording', array('recording' => $data));
   }
   else {
     $data = $api->allRecordings();
-    $output = theme('uom_event_list', array('events' => $data));
+    $output = theme('uom_event_recording_list', array('recordings' => $data));
   }
 
   return $output;
 }
 
 function uom_events_tags_page($id = NULL) {
-  drupal_set_title(t('Events'));
+  drupal_set_title(t('Event Tags'));
 
   $api = uom_events_api();
 
   $api->displayFull();
   $data = $api->alltags();
-  $output = theme('uom_event_list', array('events' => $data));
+  $output = theme('uom_event_tag_list', array('tags' => $data));
 
   return $output;
 }
 
 function uom_events_hosts_page($id = NULL) {
-  drupal_set_title(t('Events'));
+  drupal_set_title(t('Event Hosts'));
 
   $api = uom_events_api();
 
   $api->displayFull();
   $data = $api->allHosts();
-  $output = theme('uom_event_list', array('events' => $data));
+  $output = theme('uom_event_host_list', array('hosts' => $data));
 
   return $output;
 }
