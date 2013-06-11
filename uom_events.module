@@ -16,17 +16,6 @@ function uom_events_init() {
 }
 
 /**
- * Implements hook_page_build().
- */
-function uom_events_page_build(&$page) {
-  $page['content']['uom_events'] = array(
-    '#attached' => array(
-      'css' => drupal_get_path('module', 'uom_events') . '/css/uom_events.css',
-    ),
-  );
-}
-
-/**
  * Implements hook_permission().
  */
 function uom_events_permission() {
@@ -56,6 +45,7 @@ function uom_events_menu() {
   );
 
   $path = variable_get('uom_events_path', 'events');
+  $depth = substr_count($path, '/') + 1;
 
   $items[$path] = array(
     'title' => t('Events'),
@@ -65,36 +55,38 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
-  $items[$path . '/devel'] = array(
-    'title' => t('Events'),
-    'page callback' => 'uom_events_page_devel',
-    'access arguments' => array('access devel information'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'uom_events.pages.inc',
-  );
-
   $items[$path . '/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_page',
-    'page arguments' => array(1),
+    'page arguments' => array($depth),
     'access arguments' => array('view uom events'),
     'type' => MENU_CALLBACK,
     'file' => 'uom_events.pages.inc',
   );
 
-  $items[$path . '/%/devel'] = array(
-    'title' => t('Devel'),
-    'page callback' => 'uom_events_page_devel',
-    'page arguments' => array(1),
-    'access arguments' => array('access devel info'),
-    'type' => MENU_LOCAL_TASK,
-    'file' => 'uom_events.pages.inc',
-  );
+  if (module_exists('devel')) {
+    $items[$path . '/devel'] = array(
+      'title' => t('Events'),
+      'page callback' => 'uom_events_page_devel',
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'uom_events.pages.inc',
+    );
+
+    $items[$path . '/%/devel'] = array(
+      'title' => t('Devel'),
+      'page callback' => 'uom_events_page_devel',
+      'page arguments' => array($depth),
+      'access arguments' => array('access devel info'),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'uom_events.pages.inc',
+    );
+  }
 
   $items[$path . '/tag/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_filter_page',
-    'page arguments' => array('tag', 2),
+    'page arguments' => array('tag', $depth + 1),
     'access arguments' => array('view uom events'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'uom_events.pages.inc',
@@ -103,7 +95,7 @@ function uom_events_menu() {
   $items[$path . '/type/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_filter_page',
-    'page arguments' => array('type', 2),
+    'page arguments' => array('type', $depth + 1),
     'access arguments' => array('view uom events'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'uom_events.pages.inc',
@@ -112,7 +104,7 @@ function uom_events_menu() {
   $items[$path . '/host/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_filter_page',
-    'page arguments' => array('host', 2),
+    'page arguments' => array('host', $depth + 1),
     'access arguments' => array('view uom events'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'uom_events.pages.inc',
@@ -129,7 +121,7 @@ function uom_events_menu() {
   $items[$path . '/presenters/%'] = array(
     'title' => t('Presenters'),
     'page callback' => 'uom_events_presenters_page',
-    'page arguments' => array(1),
+    'page arguments' => array($depth + 1),
     'access arguments' => array('view uom events'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'uom_events.pages.inc',
@@ -146,7 +138,7 @@ function uom_events_menu() {
   $items[$path . '/recordings/%'] = array(
     'title' => t('Recordings'),
     'page callback' => 'uom_events_recordings_page',
-    'page arguments' => array(1),
+    'page arguments' => array($depth + 1),
     'access arguments' => array('view uom events'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'uom_events.pages.inc',
@@ -163,13 +155,13 @@ function uom_events_menu() {
   $items[$path . '/tags/%'] = array(
     'title' => t('Tags'),
     'page callback' => 'uom_events_tags_page',
-    'page arguments' => array(1),
+    'page arguments' => array($depth + 1),
     'access arguments' => array('view uom events'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'uom_events.pages.inc',
   );
 
-  $items[$path . 'hosts'] = array(
+  $items[$path . '/hosts'] = array(
     'title' => t('Hosts'),
     'page callback' => 'uom_events_hosts_page',
     'access arguments' => array('view uom events'),
@@ -369,6 +361,12 @@ function uom_events_theme($existing, $type, $theme, $path) {
       'variables' => array('recordings' => NULL),
       'base hook' => 'uom_event_recording_list',
       'template' => 'uom-event-recording-list',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),
+    'uom_event_recording' => array(
+      'variables' => array('recording' => NULL),
+      'base hook' => 'uom_event_recording',
+      'template' => 'uom-event-recording',
       'path' => drupal_get_path('module', 'uom_events') . '/templates',
     ),
     'uom_event_tag_list' => array(
@@ -712,6 +710,36 @@ function uom_events_preprocess_uom_event_recording_list(&$variables) {
 }
 
 /**
+ * Preprocess a recording for the template file.
+ */
+function uom_events_preprocess_uom_event_recording(&$variables) {
+  $recording = $variables['recording'];
+  $path = variable_get('uom_events_path', 'events');
+
+  $timestamp = strtotime($recording->published_at);
+
+  $variables['id']               = $recording->id;
+  $variables['link']             = url($path . '/recordings/' . $recording->id);
+  $variables['event_id']         = $recording->event_id;
+  $variables['event_link']       = url($path . '/' . $recording->event_id);
+  $variables['title']            = check_plain($recording->title);
+  $variables['source']           = check_plain($recording->source);
+  $variables['description']      = check_plain($recording->description);
+  $variables['description_html'] = filter_xss($recording->description_html, uom_events_allowed_tags());
+  $variables['thumbnail_url']    = url($recording->thumbnail_url);
+  $variables['thumbnail']        = theme('image', array('path' => $recording->thumbnail_url));
+  $variables['watch_url']        = url($recording->watch_url);
+  if (module_exists('media_youtube')) {
+    $options = array('width' => '425', 'height' => '240', 'allowfullscreen' => TRUE);
+    $uri = media_parse_to_uri($recording->watch_url);
+    $variables['embed'] = theme('media_youtube_video', array('uri' => $uri, 'options' => $options));
+  }
+  $variables['published_at']     = $recording->published_at;
+  $variables['dates']            = uom_events_date_fiddle($timestamp);
+  $variables['original']         = url($recording->link);
+}
+
+/**
  * Preprocess a tag list array for the template file.
  */
 function uom_events_preprocess_uom_event_tag_list(&$variables) {
@@ -739,12 +767,12 @@ function uom_events_preprocess_uom_event_host_list(&$variables) {
 
   $path = variable_get('uom_events_path', 'events');
 
-  foreach ($hosts as $hosts) {
-    $variables['hosts'][$host->id] = array(
-      'id'             => $host->id,
-      'link'           => url($path . '/recordings/' . $host->id),
-      'title'          => check_plain($host->title),
-      'original'       => url($host->link),
+  foreach ($hosts as $host) {
+    $variables['hosts'][$host->host_parameterized] = array(
+      'title'          => check_plain($host->host),
+      'parameter'      => check_plain($host->host_parameterized),
+      'events'         => check_plain($host->count_events),
+      'link'           => url($path . '/host/' . $host->host_parameterized),
     );
   }
 }

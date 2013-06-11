@@ -18,8 +18,8 @@
  */
 ?>
 
-<ul class="uom-event-host">
-<?php foreach($hosts as $host): ?>
-  <li><a href="<?php print $host['link']; ?>"><?php print $host['title']; ?></a></li>
-<?php endforeach; ?>
-</ul>
+<div class="uom-events-recording">
+  <?php print $description_html; ?>
+  <?php print $embed; ?>
+  <p><a href="<?php print $event_link; ?>">Back to event details</a>
+</div>
