@@ -20,7 +20,7 @@ function uom_events_requirements($phase) {
 
   if (empty($library['installed'])) {
     $requirements['uom_events']['description'] = t('You can download the <a href="@url">@name</a> library from <a href="@downloadurl">@downloadurl</a>. Please save it to a directory called %path under your Drupal libraries directory.', array('@name' => $library['name'], '@url' => $library['vendor url'], '@downloadurl' => $library['download url'], '%path' => $library['machine name']));
-    $requirements['uom_events']['severity'] = REQUIREMENT_ERROR;
+    $requirements['uom_events']['severity'] = REQUIREMENT_WARNING;
   }
 
   return $requirements;
