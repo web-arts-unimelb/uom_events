@@ -206,7 +206,7 @@ function uom_events_libraries_info() {
 /**
  * Implements hook_block_info().
  */
-function uom_events_block_info($delta) {
+function uom_events_block_info($delta = '') {
   for ($delta = 0; $delta < variable_get('uom_events_blocks', 1); $delta++) {
     $settings = variable_get('uom_events_block_' . $delta, array());
     $blocks[$delta]['info'] = (empty($settings['description'])) ? t('UoM Events @delta', array('@delta' => $delta)) : $settings['description'];
@@ -221,7 +221,7 @@ function uom_events_block_info($delta) {
 /**
  * Implements hook_block_configure().
  */
-function uom_events_block_configure($delta) {
+function uom_events_block_configure($delta = '') {
   if ($delta == 'meta') {
     return array();
   }
