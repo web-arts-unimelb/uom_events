@@ -284,6 +284,11 @@ function uom_events_block_view($delta = '') {
     $api->displayFull();
     $data = $api->getEvent(arg(1), TRUE);
 
+    // If there is no data to display...
+    if (empty($data)) {
+      return array();
+    }
+
     return array(
       'subject' => check_plain($data->title),
       'content' => array(
@@ -412,7 +417,8 @@ function uom_events_fetcher($url, $options) {
   else {
     $response = drupal_http_request($url, $options);
     if ($response->code != 200) {
-      drupal_set_message(t('Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message)));
+      watchdog('uom_events', 'Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message));
+      // drupal_set_message(t('Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message)));
     }
     elseif ($period) {
       // Cache it for at least 15 minutes, but really should have tweakable expiry.
@@ -435,7 +441,6 @@ function uom_events_parser($response) {
   if ($response->code == 200) {
     return @json_decode($response->data);
   }
-  drupal_set_message(t('Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message)));
   return FALSE;
 }
 
@@ -444,7 +449,7 @@ function uom_events_parser($response) {
  */
 function uom_events_api() {
   $api = new EventsAPI(variable_get('uom_events_token', ''));
-  $api->setCallback('uom_events_fetcher');
+  $api->setFetcher('uom_events_fetcher');
   $api->setParser('uom_events_parser');
 
   return $api;
@@ -635,7 +640,9 @@ function uom_events_preprocess_uom_event_block(&$variables) {
  */
 function uom_events_preprocess_uom_event_presenter(&$variables) {
   $presenter = $variables['presenter'];
+  dpm($variables);
   unset($variables['presenter']);
+
 
   $path = variable_get('uom_events_path', 'events');
 
@@ -769,7 +776,7 @@ function uom_events_preprocess_uom_event_host_list(&$variables) {
 
   foreach ($hosts as $host) {
     $variables['hosts'][$host->host_parameterized] = array(
-      'title'          => check_plain($host->host),
+      'title'          => !empty($host->host) ? check_plain($host->host) : t('Untitled'),
       'parameter'      => check_plain($host->host_parameterized),
       'events'         => check_plain($host->count_events),
       'link'           => url($path . '/host/' . $host->host_parameterized),
