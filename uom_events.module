@@ -472,7 +472,7 @@ function uom_events_allowed_tags() {
  * If an array of tags is defined in $conf['uom_events_date_formats'] then that
  * array will be used.
  */
-function uom_events_date_formats() {
+function uom_events_get_date_formats() {
   global $conf;
   if (!empty($conf['uom_events_date_formats'])) {
     return $conf['uom_events_date_formats'];
@@ -486,7 +486,7 @@ function uom_events_date_formats() {
 function uom_events_date_fiddle($timestamp) {
   $output = array();
 
-  foreach (uom_events_date_formats() as $format) {
+  foreach (uom_events_get_date_formats() as $format) {
     $output[$format] = date($format, $timestamp);
   }
 
