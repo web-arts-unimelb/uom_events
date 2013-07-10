@@ -9,21 +9,23 @@
 function uom_events_init() {
   // Attempts to load the EventsAPI library, if available.
   $library = libraries_load('EventsAPI');
-  
-  //test
-  /*
-  echo "<pre>";
-  print_r($library);
-  echo "</pre>";
-  die;
-  */
-  
-  foreach ($library['files']['php'] as $file) {
-  	// Gary
-    //require_once $library['library path'] . '/' . $file;
-    require_once "/var/aegir/platforms/staging/drupal-7.22/sites/all/libraries/uom_events_api/EventsAPI.php"; 
     
+  if(!empty($library['library path'])) {
+  	foreach ($library['files']['php'] as $file) {
+		  require_once $library['library path'] . '/' . $file;
+		}	
   }
+  else {      
+		$site_all_path = dirname(dirname(dirname(dirname(__FILE__))));
+		$lib_path = $site_all_path. "/libraries/uom_events_api/EventsAPI.php";
+		if(file_exists($lib_path)) {
+			require_once $lib_path;
+		}
+		else {
+			// Dead silence
+		}
+  }
+  
   drupal_add_css(drupal_get_path('module', 'uom_events') . '/css/uom_events.css');
 }
 
