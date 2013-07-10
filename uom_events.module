@@ -9,8 +9,20 @@
 function uom_events_init() {
   // Attempts to load the EventsAPI library, if available.
   $library = libraries_load('EventsAPI');
+  
+  //test
+  /*
+  echo "<pre>";
+  print_r($library);
+  echo "</pre>";
+  die;
+  */
+  
   foreach ($library['files']['php'] as $file) {
-    require_once $library['library path'] . '/' . $file;
+  	// Gary
+    //require_once $library['library path'] . '/' . $file;
+    require_once "/var/aegir/platforms/staging/drupal-7.22/sites/all/libraries/uom_events_api/EventsAPI.php"; 
+    
   }
   drupal_add_css(drupal_get_path('module', 'uom_events') . '/css/uom_events.css');
 }
@@ -302,6 +314,10 @@ function uom_events_block_view($delta = '') {
   }
 
   if (!empty($settings['tag'])) {
+  	if(!_does_it_contain_quotes($settings['tag'])) {
+			$settings['tag'] = "\"". $settings['tag']. "\"";
+		}
+  	
     $data = $api->currentEventsByTag($settings['tag']);
   }
   else {
@@ -782,4 +798,21 @@ function uom_events_preprocess_uom_event_host_list(&$variables) {
       'link'           => url($path . '/host/' . $host->host_parameterized),
     );
   }
+}
+
+function _does_it_contain_quotes($value) {
+	$condi = false;
+
+	$str_len = strlen($value);
+	if( (strpos($value, '"', 0) !== false) && (strpos($value, '"', $str_len-1) !== false) )  {
+		$condi = true;
+	}
+	elseif( (strpos($value, "'", 0) !== false) && (strpos($value, "'", $str_len-1) !== false) ) {
+		$condi = true;
+	}
+	else {
+		$condi = false;
+	}
+	
+	return $condi;
 }
