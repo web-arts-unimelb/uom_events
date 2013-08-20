@@ -21,10 +21,16 @@ function uom_events_page($id = NULL) {
   else {
     if (!empty($tag)) {
       drupal_set_title(t('@tag Events', array('@tag' => ucwords($tag))));
-      $data = $api->currentEventsByTag($tag);
+      $tmp_data = $api->currentEventsByTag($tag);
     }
     else {
-      $data = $api->currentEvents();
+      $tmp_data = $api->currentEvents();
+    }
+
+		// $api->getEvent has comprehesive data only
+		$data = array();
+    foreach($tmp_data as $single_event) {
+    	$data[] = $api->getEvent($single_event->id, TRUE);
     }
     $output = theme('uom_event_list', array('events' => $data));
   }

@@ -38,6 +38,5 @@
   <?php print $information; ?>
   <?php print $location; ?>
   <?php print $booking; ?>
-
 </div>
 

@@ -20,23 +20,22 @@
 ?>
 
 <?php foreach($events as $event): ?>
-
   <div class="uom-event">
     <h3><a href="<?php print $event['link']; ?>"><?php print $event['title']; ?></a></h3>
-    <span class="date-display-single"><?php print $event['date_start']; ?></span>
+    <strong>Date:</strong> <span class="date-display-single"><?php print $event['date_start']; ?></span>
     <?php if ($event['time_start']): ?>
       <span class="date-display-start" property="dc:date" datatype="xsd:dateTime" content="<?php print $event['datestamp_start']; ?>"><?php print $event['time_start']; ?></span>
     <?php endif; ?>
     <?php if ($event['time_end']): ?>
-      –<span class="date-display-end" property="dc:date" datatype="xsd:dateTime" content="<?php print $event['datestamp_end']; ?>"><?php print $event['time_end']; ?></span>
+      – <span class="date-display-end" property="dc:date" datatype="xsd:dateTime" content="<?php print $event['datestamp_end']; ?>"><?php print $event['time_end']; ?></span>
     <?php endif; ?>
 
     <?php if ($event['speaker']): ?>
       <h4>Speaker: <?php print $event['speaker']; ?></h4>
     <?php endif; ?>
 
-    <p><strong>Date:</strong><?php print $event['date']; ?><br>
-       <strong>Location:</strong><?php print $event['location']; ?>
-    </div>
+		<?php print $event['location']; ?>
+	</div>
 
 <?php endforeach; ?>
+

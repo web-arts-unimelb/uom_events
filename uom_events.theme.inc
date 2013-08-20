@@ -38,6 +38,32 @@ function theme_uom_event_location($variables) {
   return (empty($items)) ? '' : theme_item_list(array('items' => $items, 'title' => $title, 'type' => $type, 'attributes' => $attributes));
 }
 
+function theme_uom_event_location_inline($variables) {
+	$location = $variables['location'];
+  $items = array();
+
+	if(!empty($location->room_or_theatre)) {
+		$items[] = check_plain($location->room_or_theatre);
+	}
+
+	if(!empty($location->building)) {
+		$items[] = check_plain($location->building);
+	}
+	
+	if(!empty($location->address)) {
+		$items[] = check_plain($location->address);
+	}
+
+	if(empty($items)) {
+		$output = "";
+	}
+	else {
+		$output = "<br/><strong>Location:</strong> ". implode(", ", $items);
+	}	
+
+	return $output;
+}
+
 /**
  * Basic theme function for event related contact information.
  */

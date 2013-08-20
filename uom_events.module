@@ -360,6 +360,10 @@ function uom_events_theme($existing, $type, $theme, $path) {
       'variables' => array('location' => NULL),
       'file' => 'uom_events.theme.inc',
     ),
+	 'uom_event_location_inline' => array(
+  	 'variables' => array('location' => NULL),
+     'file' => 'uom_events.theme.inc',
+    ),
     'uom_event_information' => array(
       'variables' => array('information' => NULL),
       'file' => 'uom_events.theme.inc',
@@ -569,7 +573,6 @@ function uom_events_preprocess_uom_event_list(&$variables) {
   // Process the list of event objects into an array of template variables.
   // Wednesday, May 22, 2013 - 18:00–19:00
   foreach ($events as $event) {
-
     $timestamp_start = strtotime($event->start_time);
     $timestamp_end   = strtotime($event->end_time);
 
@@ -590,7 +593,7 @@ function uom_events_preprocess_uom_event_list(&$variables) {
       'time_start'       => (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'G:i'),
       'time_end'         => (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'G:i'),
       'speaker'          => (empty($event->speaker)) ? '' : check_plain($event->speaker),
-      'location'         => (empty($event->location)) ? '' : theme('uom_event_location', array('location' => $event->location)),
+      'location'         => (empty($event->location)) ? '' : theme('uom_event_location_inline', array('location' => $event->location)),
       'information'      => (empty($event->information)) ? '' : theme('uom_event_information', array('information' => $event->information)),
       'booking'          => (empty($event->booking)) ? '' : theme('uom_event_booking', array('booking' => $event->booking)),
       'host'             => (empty($event->host)) ? '' : check_plain($event->host),
