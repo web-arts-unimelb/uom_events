@@ -19,24 +19,50 @@ function uom_events_page($id = NULL) {
     $output = theme('uom_event', array('event' => $data));
   }
   else {
+		$api->displayFull();
+
     if (!empty($tag)) {
       drupal_set_title(t('@tag Events', array('@tag' => ucwords($tag))));
-      $tmp_data = $api->currentEventsByTag($tag);
+      $tmp_data = $api->currentEventsByTag($tag, TRUE);
     }
     else {
-      $tmp_data = $api->currentEvents();
+      $tmp_data = $api->currentEvents(TRUE);
     }
 
-		// $api->getEvent has comprehesive data only
+		// $api->getEvent has comprehesive data only,
+		// Even $api->displayFull(); 
+		// $api->currentEventsByTag and $api->currentEvents has full data return condition
 		$data = array();
     foreach($tmp_data as $single_event) {
     	$data[] = $api->getEvent($single_event->id, TRUE);
     }
-    $output = theme('uom_event_list', array('events' => $data));
+    
+		$output = theme('uom_event_list', array('events' => $data));
   }
 
   return $output;
 }
+
+/**
+ * Past event page handler.
+ */
+function uom_events_past_page() {
+  drupal_set_title(t('Past events'));
+
+	$api = uom_events_api();
+	$api->displayFull();
+  $tag = variable_get('uom_events_tag', '');
+	
+	$tmp_data = $api->pastEventsByTag($tag, TRUE);
+	$data = array();
+  foreach($tmp_data as $single_event) {
+  	$data[] = $api->getEvent($single_event->id, TRUE);
+  }
+
+	$output = theme('uom_event_past_list', array('events' => $data));
+	return $output;   
+}
+
 
 /**
  * Filter page handler.

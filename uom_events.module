@@ -69,6 +69,14 @@ function uom_events_menu() {
     'file' => 'uom_events.pages.inc',
   );
 
+	$items[$path . '/past'] = array(
+ 		'title' => t('Past events'),
+ 		'page callback' => 'uom_events_past_page',
+ 		'access arguments' => array('view uom events'),
+ 		'type' => MENU_NORMAL_ITEM,
+ 		'file' => 'uom_events.pages.inc',
+	);
+
   $items[$path . '/%'] = array(
     'title' => t('Events'),
     'page callback' => 'uom_events_page',
@@ -358,6 +366,14 @@ function uom_events_theme($existing, $type, $theme, $path) {
       'template' => 'uom-event-list',
       'path' => drupal_get_path('module', 'uom_events') . '/templates',
     ),
+
+		'uom_event_past_list' => array(
+      'variables' => array('events' => NULL),
+      'base hook' => 'uom_event_past_list',
+      'template' => 'uom-event-past-list',
+      'path' => drupal_get_path('module', 'uom_events') . '/templates',
+    ),		
+
     'uom_event' => array(
       'variables' => array('event' => NULL),
       'base hook' => 'uom_event',
@@ -567,6 +583,57 @@ function uom_events_preprocess_uom_event(&$variables) {
 
   $variables['dates']['start']    = uom_events_date_fiddle($timestamp_start);
   $variables['dates']['end']      = uom_events_date_fiddle($timestamp_end);
+}
+
+/*
+ * Preprocess and past event list for a template file
+ */
+function uom_events_preprocess_uom_event_past_list(&$variables) {
+   $events = $variables['events'];
+   $variables['events'] = array();
+ 
+   $path = variable_get('uom_events_path', 'events');
+ 
+   // Process the list of event objects into an array of template variables.
+   // Wednesday, May 22, 2013 - 18:00–19:00
+   foreach ($events as $event) {
+     $timestamp_start = strtotime($event->start_time);
+     $timestamp_end   = strtotime($event->end_time);
+ 
+     $variables['events'][$event->id] = array(
+       'id'               => $event->id, 
+       'title'            => check_plain($event->title),
+       'link'             => url($path . '/' . $event->id),
+       'description'      => (empty($event->description)) ? '' : check_plain($event->description),
+       'description_html' => (empty($event->description_html)) ? '' : filter_xss($event->description_html, uom_events_allowed_tags()),
+       'description_text' => (empty($event->description_text)) ? '' : check_plain($event->description_text),
+       'timestamp_start'  => $timestamp_start,
+       'timestamp_end'    => $timestamp_end,
+       'datestamp_start'  => $event->start_time, 
+       'datestamp_end'    => $event->end_time,
+       'date'             => format_date($timestamp_start, 'long'),
+       'date_start'       => (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'l, F j, Y'),
+       'date_end'         => (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'l, F j, Y'),
+       'time_start'       => (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'G:i'),
+       'time_end'         => (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'G:i'),
+       'speaker'          => (empty($event->speaker)) ? '' : check_plain($event->speaker),
+       'location'         => (empty($event->location)) ? '' : theme('uom_event_location_inline', array('location' => $event->location)),
+       'information'      => (empty($event->information)) ? '' : theme('uom_event_information', array('information' => $event->information)),
+       'booking'          => (empty($event->booking)) ? '' : theme('uom_event_booking', array('booking' => $event->booking)),
+       'host'             => (empty($event->host)) ? '' : check_plain($event->host),
+       'image'            => (empty($event->img_url)) ? '' : $event->img_url,
+       'type'             => (empty($event->event_type)) ? '' : $event->event_type,
+       'has_livestream'   => (empty($event->has_livestream)) ? '' : $event->has_livestream,
+       'sold_out'         => (empty($event->sold_out)) ? '' : $event->sold_out,
+       'cancelled'        => (empty($event->cancelled)) ? '' : $event->cancelled,
+       'original'         => url($event->link),
+ 
+       'dates'            => array(
+                               'start' => uom_events_date_fiddle($timestamp_start),
+                               'end'   => uom_events_date_fiddle($timestamp_end),
+       ),
+     );
+   }
 }
 
 /**
