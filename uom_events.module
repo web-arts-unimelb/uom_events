@@ -252,6 +252,13 @@ function uom_events_block_configure($delta = '') {
     '#default_value' => $settings['number'],
     '#description' => t('Enter the number of events that should be shown on this block.'),
   );
+  $form['items_per_page'] = array(
+    '#type' => 'textfield',
+    '#size' => 2,
+    '#title' => t('Number of events per pagination'),
+    '#default_value' => $settings['items_per_page'],
+    '#description' => t('Enter the number of events showed on one pagination'),
+  );
   $form['more'] = array(
     '#type' => 'textfield',
     '#title' => t('More link'),
@@ -274,6 +281,7 @@ function uom_events_block_save($delta = '', $edit = array()) {
     'tag'         => $edit['tag'],
     'number'      => $edit['number'],
     'more'        => $edit['more'],
+    'items_per_page' => $edit['items_per_page'],
   );
   variable_set('uom_events_block_' . $delta, $settings);
 }
@@ -654,6 +662,10 @@ function uom_events_preprocess_uom_event_block(&$variables) {
                             ),
     );
   }
+  
+  $variables['total_items'] = count($events);
+  $default_items_per_page = 5;
+  $variables['items_per_page'] = (empty($settings['items_per_page'])) ? $default_items_per_page : $settings['items_per_page'];  
 }
 
 /**

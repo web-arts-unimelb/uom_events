@@ -23,37 +23,30 @@
  */
 ?>
 
-<?php drupal_add_js('https://raw.github.com/beneverard/jqPagination/1.3/js/jquery.jqpagination.js', 'external'); ?>
+<?php
+	drupal_add_js(drupal_get_path('module', 'uom_events') . '/js/jquery.jqpagination.js');
 
-<?php 
 	drupal_add_js("
 		jQuery(document).ready(function () {
-    	jQuery('.uom-events .part-event:not(:first)').hide();
+    	jQuery('.uom-events .part-events:not(:first)').hide();
 
     	jQuery('.event-pager').jqPagination({
-        max_page    : jQuery('.uom-events .part-event').length,
-        paged        : function(page) {
-
-
-            jQuery('.uom-events .part-event').hide();
-            jQuery(jQuery('.uom-events .part-event')[page - 1]).show();
-
+        max_page : jQuery('.uom-events .part-events').length,
+        paged : function(page) {
+        	jQuery('.uom-events .part-events').hide();
+          jQuery(jQuery('.uom-events .part-events')[page - 1]).show();
         }
     	});
    }); 	
 	", 'inline');
 ?>
 
-<?php 
-	$iterm_per_page = 5;
-	$total_item = count($events);
-	$page_num = ceil($total_item / $iterm_per_page);
-	
+<?php
 	$total_html = "<div class=\"uom-events\">";
-	for($offset = 0; $offset < $total_item; $offset += $iterm_per_page) {
-		$part_events = array_slice($events, $offset, $iterm_per_page);
+	for($offset = 0; $offset < $total_items; $offset += $items_per_page) {
+		$part_events = array_slice($events, $offset, $items_per_page);
 		
-		$part_html = "<div class=\"part-event\">";
+		$part_html = "<div class=\"part-events\">";
 		foreach($part_events as $event) {
 			$e_date = $event['dates']['start']['j'];
 			$e_month = $event['dates']['start']['M'];
@@ -85,12 +78,13 @@
 	echo $total_html;
 ?>
 
-<div class="event-pager">
-    <a href="#" class="first" data-action="first">&laquo;</a>
-    <a href="#" class="previous" data-action="previous">&lsaquo;</a>
-    <input type="text" readonly="readonly" data-max-page="40" />
-    <a href="#" class="next" data-action="next">&rsaquo;</a>
-    <a href="#" class="last" data-action="last">&raquo;</a>
-</div>
-
+<?php if($total_items > 0): ?>
+	<div class="event-pager">
+		  <a href="#" class="first" data-action="first">&laquo;</a>
+		  <a href="#" class="previous" data-action="previous">&lsaquo;</a>
+		  <input type="text" readonly="readonly" data-max-page="40" />
+		  <a href="#" class="next" data-action="next">&rsaquo;</a>
+		  <a href="#" class="last" data-action="last">&raquo;</a>
+	</div>
+<?php endif; ?>
 
