@@ -36,6 +36,7 @@
   <?php endif; ?>
 
   <?php print $information; ?>
+  <h3>Location</h3>
   <?php print $location; ?>
   <?php print $booking; ?>
 </div>

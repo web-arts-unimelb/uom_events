@@ -58,7 +58,7 @@ function theme_uom_event_location_inline($variables) {
 		$output = "";
 	}
 	else {
-		$output = "<br/><strong>Location:</strong> ". implode(", ", $items);
+		$output = implode(", ", $items);
 	}	
 
 	return $output;

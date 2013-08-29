@@ -34,7 +34,7 @@
       <h4>Speaker: <?php print $event['speaker']; ?></h4>
     <?php endif; ?>
 
-		<?php print $event['location']; ?>
+		<br/><strong>Location:</strong> <?php print $event['location']; ?>
 	</div>
 
 <?php endforeach; ?>

@@ -579,7 +579,7 @@ function uom_events_preprocess_uom_event(&$variables) {
   $variables['time_start']        = (empty($event->start_time)) ? '' : format_date($timestamp_start, 'custom', 'G:i');
   $variables['time_end']          = (empty($event->end_time)) ? '' : format_date($timestamp_end, 'custom', 'G:i');
   $variables['speaker']           = (empty($event->speaker)) ? '' : check_plain($event->speaker);
-  $variables['location']          = (empty($event->location)) ? '' : theme('uom_event_location', array('location' => $event->location));
+  $variables['location']          = (empty($event->location)) ? '' : theme('uom_event_location_inline', array('location' => $event->location));
   $variables['information']       = (empty($event->information)) ? '' : theme('uom_event_information', array('information' => $event->information));
   $variables['booking']           = (empty($event->booking)) ? '' : theme('uom_event_booking', array('booking' => $event->booking));
   $variables['host']              = (empty($event->host)) ? '' : check_plain($event->host);
