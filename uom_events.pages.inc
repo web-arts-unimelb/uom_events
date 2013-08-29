@@ -21,9 +21,21 @@ function uom_events_page($id = NULL) {
   else {
 		$api->displayFull();
 
-    if (!empty($tag)) {
+    if(!empty($tag)) {
+    	$tmp_data = array();
+    	$tag_array = _build_tag_array($tag);
+			foreach($tag_array as $single_tag) {
+		  	$single_tag_data = $api->currentEventsByTag($single_tag, TRUE);
+		  	if(count($single_tag_data) > 0) {
+		  		foreach($single_tag_data as $single_event) {
+		  			if(!_is_event_included($single_event->id, $tmp_data)) {
+		  				$tmp_data[] = $single_event;
+		  			}
+		  		}
+		  	}
+		  }
+			usort($tmp_data, "_my_event_compare");
       drupal_set_title(t('@tag Events', array('@tag' => ucwords($tag))));
-      $tmp_data = $api->currentEventsByTag($tag, TRUE);
     }
     else {
       $tmp_data = $api->currentEvents(TRUE);

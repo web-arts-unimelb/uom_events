@@ -344,7 +344,6 @@ function uom_events_block_view($delta = '') {
     		}
     	}
     }
-    
 		usort($data, "_my_event_compare");
   }
   else {
@@ -927,4 +926,3 @@ function _is_event_included($event_id, $events) {
 	
 	return false;
 }
-
