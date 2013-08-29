@@ -517,10 +517,11 @@ function uom_events_api() {
  */
 function uom_events_allowed_tags() {
   global $conf;
+   
   if (!empty($conf['uom_events_allowed_tags'])) {
     return $conf['uom_events_allowed_tags'];
   }
-  return array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd');
+  return array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'p', 'br');
 }
 
 /**
