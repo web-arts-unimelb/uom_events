@@ -27,3 +27,27 @@
   -moz-border-radius-bottomleft: 3px;
   -webkit-border-bottom-left-radius: 3px;
 }
+
+.uom-events {
+	clear:left;
+}
+
+.event-pager {
+	margin-bottom: 10px;
+}
+
+.event-pager input {
+	width: 80px;
+	border: 0;
+	background-color: transparent;
+	text-align: center;
+}
+
+.event-pager a {
+	color: #003366;
+	font-weight: bold;
+	font-size: 13px;
+	text-decoration: none !important;
+}
+
+
