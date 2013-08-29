@@ -78,7 +78,7 @@
 	echo $total_html;
 ?>
 
-<?php if($total_items > 0): ?>
+<?php if($total_items > $items_per_page): ?>
 	<div class="event-pager">
 		  <a href="#" class="first" data-action="first">&laquo;</a>
 		  <a href="#" class="previous" data-action="previous">&lsaquo;</a>

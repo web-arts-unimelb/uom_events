@@ -331,12 +331,21 @@ function uom_events_block_view($delta = '') {
     );
   }
 
-  if (!empty($settings['tag'])) {
-  	if(!_does_it_contain_quotes($settings['tag'])) {
-			$settings['tag'] = "\"". $settings['tag']. "\"";
-		}
-  	
-    $data = $api->currentEventsByTag($settings['tag']);
+	$data = array();
+  if(!empty($settings['tag'])) {
+  	$tag_array = _build_tag_array($settings['tag']);
+  	foreach($tag_array as $tag) {
+    	$single_tag_data = $api->currentEventsByTag($tag);
+    	if(count($single_tag_data) > 0) {
+    		foreach($single_tag_data as $single_event) {
+    			if(!_is_event_included($single_event->id, $data)) {
+    				$data[] = $single_event;
+    			}
+    		}
+    	}
+    }
+    
+		usort($data, "_my_event_compare");
   }
   else {
     $data = $api->currentEvents();
@@ -884,19 +893,38 @@ function uom_events_preprocess_uom_event_host_list(&$variables) {
   }
 }
 
-function _does_it_contain_quotes($value) {
-	$condi = false;
+function _build_tag_array($tag_string) {
+	// Assume tag is like School Of Historical And Philosophical Studies, katharine viner
+	$array = explode(",", $tag_string);
+	array_walk($array, "_my_trim");
+	return $array;
+}
 
-	$str_len = strlen($value);
-	if( (strpos($value, '"', 0) !== false) && (strpos($value, '"', $str_len-1) !== false) )  {
-		$condi = true;
-	}
-	elseif( (strpos($value, "'", 0) !== false) && (strpos($value, "'", $str_len-1) !== false) ) {
-		$condi = true;
-	}
-	else {
-		$condi = false;
+function _my_trim(&$value, $key) {
+	$value = trim($value);
+}
+
+function _my_event_compare($a, $b)
+{
+		// Time format is like 20080701T22:38:07
+		$a_start_time = strtotime($a->start_time);
+		$b_start_time = strtotime($b->start_time);
+	
+		if($a_start_time > $b_start_time)
+			return 1;
+		elseif($a_start_time === $b_start_time)
+			return 0;
+		else
+			return -1;	
+}
+
+function _is_event_included($event_id, $events) {
+	foreach($events as $event) {
+		if($event_id === $event->id) {
+			return true;
+		}
 	}
 	
-	return $condi;
+	return false;
 }
+
