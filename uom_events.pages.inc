@@ -64,11 +64,12 @@ function uom_events_past_page() {
 	$api = uom_events_api();
 	$api->displayFull();
   $tag = variable_get('uom_events_tag', '');
+	$num_of_years = variable_get('uom_events_past_num_of_years', 1);
 	
 	$tag_events = array();
 	$tag_array = _build_tag_array($tag);
 	foreach($tag_array as $single_tag) {
-		$tmp_tag_events = $api->pastEventsByTag($single_tag, FALSE);
+		$tmp_tag_events = $api->pastEventsByTag($single_tag, $num_of_years, FALSE);
 		if(count($tmp_tag_events) > 0) {
 			foreach($tmp_tag_events as $tmp_tag_event) {
 				if(!_is_event_included($tmp_tag_event->id, $tag_events)) {

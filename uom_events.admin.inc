@@ -31,6 +31,15 @@ function uom_events_admin_form() {
     '#type' => 'textfield',
     '#default_value' => variable_get('uom_events_tag', ''),
   );
+  
+  $form['uom_events_past_num_of_years'] = array(
+    '#title' => t('How many years from today to past'),
+    '#description' => t('Enter number of years from today to past. e.g. This year is 2013, and you want to go back to 2011. So it will be 3'),
+    '#type' => 'textfield',
+    '#size' => 3,
+    '#default_value' => variable_get('uom_events_past_num_of_years', 1),
+  );
+  
 
   $form['uom_events_blocks'] = array(
     '#title' => t('Event blocks'),
