@@ -49,6 +49,14 @@ function uom_events_admin_form() {
     '#default_value' => variable_get('uom_events_blocks', 1),
   );
 
+	$form['uom_events_past_event_cache'] = array(
+    '#title' => t('Past event caching'),
+    '#description' => t('Define your past event caching time'),
+    '#type' => 'select',
+    '#options' => array(0 => 'none', 21600 => '6 hours', 86400 => '1 day'),
+    '#default_value' => variable_get('uom_events_past_event_cache', 86400), // 1 day
+  );
+
   $cache = variable_get('cache_lifetime', 0);
   if (!empty($cache)) {
     $form['uom_events_cache'] = array(
