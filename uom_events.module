@@ -344,7 +344,7 @@ function uom_events_block_view($delta = '') {
     		}
     	}
     }
-		usort($data, "_my_event_compare");
+		usort($data, "_my_event_compare_asc");
   }
   else {
     $data = $api->currentEvents();
@@ -904,7 +904,7 @@ function _my_trim(&$value, $key) {
 	$value = trim($value);
 }
 
-function _my_event_compare($a, $b)
+function _my_event_compare_asc($a, $b)
 {
 		// Time format is like 20080701T22:38:07
 		$a_start_time = strtotime($a->start_time);
@@ -918,10 +918,26 @@ function _my_event_compare($a, $b)
 			return -1;	
 }
 
+function _my_event_compare_desc($a, $b)
+{
+		// Time format is like 20080701T22:38:07
+		$a_start_time = strtotime($a->start_time);
+		$b_start_time = strtotime($b->start_time);
+	
+		if($a_start_time > $b_start_time)
+			return -1;
+		elseif($a_start_time === $b_start_time)
+			return 0;
+		else
+			return 1;	
+}
+
 function _is_event_included($event_id, $events) {
-	foreach($events as $event) {
-		if($event_id === $event->id) {
-			return true;
+	if(count($events) > 0) {
+		foreach($events as $event) {
+			if($event_id === $event->id) {
+				return true;
+			}
 		}
 	}
 	

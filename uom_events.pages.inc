@@ -34,7 +34,7 @@ function uom_events_page($id = NULL) {
 		  		}
 		  	}
 		  }
-			usort($tmp_data, "_my_event_compare");
+			usort($tmp_data, "_my_event_compare_asc");
       drupal_set_title(t('@tag Events', array('@tag' => ucwords($tag))));
     }
     else {
@@ -65,9 +65,23 @@ function uom_events_past_page() {
 	$api->displayFull();
   $tag = variable_get('uom_events_tag', '');
 	
-	$tmp_data = $api->pastEventsByTag($tag, TRUE);
+	$tag_events = array();
+	$tag_array = _build_tag_array($tag);
+	foreach($tag_array as $single_tag) {
+		$tmp_tag_events = $api->pastEventsByTag($single_tag, FALSE);
+		if(count($tmp_tag_events) > 0) {
+			foreach($tmp_tag_events as $tmp_tag_event) {
+				if(!_is_event_included($tmp_tag_event->id, $tag_events)) {
+					$tag_events[] = $tmp_tag_event;
+				}
+			} 
+		}
+	}
+	
+	usort($tag_events, "_my_event_compare_desc");
+	
 	$data = array();
-  foreach($tmp_data as $single_event) {
+  foreach($tag_events as $single_event) {
   	$data[] = $api->getEvent($single_event->id, TRUE);
   }
 
