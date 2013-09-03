@@ -41,15 +41,7 @@ function uom_events_page($id = NULL) {
       $tmp_data = $api->currentEvents(TRUE);
     }
 
-		// $api->getEvent has comprehesive data only,
-		// Even $api->displayFull(); 
-		// $api->currentEventsByTag and $api->currentEvents has full data return condition
-		$data = array();
-    foreach($tmp_data as $single_event) {
-    	$data[] = $api->getEvent($single_event->id, TRUE);
-    }
-    
-		$output = theme('uom_event_list', array('events' => $data));
+		$output = theme('uom_event_list', array('events' => $tmp_data));
   }
 
   return $output;
@@ -80,7 +72,7 @@ function uom_events_past_page() {
   else {
     $tag_events = array();
 		foreach($tag_array as $single_tag) {
-			$tmp_tag_events = $api->pastEventsByTag($single_tag, $num_of_years, FALSE);
+			$tmp_tag_events = $api->pastEventsByTag($single_tag, $num_of_years, TRUE);
 			if(count($tmp_tag_events) > 0) {
 				foreach($tmp_tag_events as $tmp_tag_event) {
 					if(!_is_event_included($tmp_tag_event->id, $tag_events)) {
@@ -91,11 +83,7 @@ function uom_events_past_page() {
 		}
 
 		usort($tag_events, "_my_event_compare_desc");
-		foreach($tag_events as $single_event) {
-			$data[] = $api->getEvent($single_event->id, TRUE);
-		}
-    
-    cache_set('uom_events_past_events_data', $data, 'cache', time() + $past_event_caching_time);
+    cache_set('uom_events_past_events_data', $tag_events, 'cache', time() + $past_event_caching_time);
   }
   
 	$output = theme('uom_event_past_list', array('events' => $data));
