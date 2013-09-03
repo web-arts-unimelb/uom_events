@@ -642,7 +642,11 @@ function uom_events_preprocess_uom_event_past_list(&$variables) {
                                'end'   => uom_events_date_fiddle($timestamp_end),
        ),
      );
-   }
+  }
+   
+	$variables['total_items'] = count($events);
+	$default_items_per_page = 10;
+	$variables['items_per_page'] = (empty($settings['items_per_page'])) ? $default_items_per_page : $settings['items_per_page'];
 }
 
 /**
@@ -741,7 +745,7 @@ function uom_events_preprocess_uom_event_block(&$variables) {
   
   $variables['total_items'] = count($events);
   $default_items_per_page = 5;
-  $variables['items_per_page'] = (empty($settings['items_per_page'])) ? $default_items_per_page : $settings['items_per_page'];  
+  $variables['items_per_page'] = (empty($settings['items_per_page'])) ? $default_items_per_page : $settings['items_per_page'];
 }
 
 /**
@@ -942,4 +946,18 @@ function _is_event_included($event_id, $events) {
 	}
 	
 	return false;
+}
+
+function _add_pagination_script() {
+	$scripts = drupal_add_js();
+	$jqpage_path = drupal_get_path('module', 'uom_events') . '/js/jquery.jqpagination.js';
+	$controller_path = drupal_get_path('module', 'uom_events') . '/js/controller.js';
+	
+  if(!isset($scripts[$jqpage_path])) {
+    drupal_add_js($jqpage_path);
+  }
+
+	if(!isset($scripts[$controller_path])) {
+    drupal_add_js($controller_path);
+  }
 }

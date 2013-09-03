@@ -67,41 +67,38 @@ function uom_events_past_page() {
   $tag = variable_get('uom_events_tag', '');
   $past_event_caching_time = variable_get('uom_events_past_event_cache', 86400);
 	$num_of_years = variable_get('uom_events_past_num_of_years', 1);
-	
 	$tag_array = _build_tag_array($tag);
 	
-	$output = &drupal_static(__FUNCTION__); // Fetch from memory
-	if(!isset($output)) {
-    if( 
-    		($cache = cache_get('uom_events_past_events_data')) && 
-    		($past_event_caching_time != 0)
-    ) {
-      $output = $cache->data;
-    }
-    else {
-      $tag_events = array();
-  		foreach($tag_array as $single_tag) {
-				$tmp_tag_events = $api->pastEventsByTag($single_tag, $num_of_years, FALSE);
-				if(count($tmp_tag_events) > 0) {
-					foreach($tmp_tag_events as $tmp_tag_event) {
-						if(!_is_event_included($tmp_tag_event->id, $tag_events)) {
-							$tag_events[] = $tmp_tag_event;
-						}
-					} 
-				}
-			}
+	$data = array();
 	
-			usort($tag_events, "_my_event_compare_desc");
-			$data = array();
-			foreach($tag_events as $single_event) {
-				$data[] = $api->getEvent($single_event->id, TRUE);
-			}
-      $output = theme('uom_event_past_list', array('events' => $data));
-      
-      cache_set('uom_events_past_events_data', $output, 'cache', time() + $past_event_caching_time);
-    }
+  if( 
+  		($cache = cache_get('uom_events_past_events_data')) && 
+  		($past_event_caching_time != 0)
+  ) {
+    $data = $cache->data;
   }
-	
+  else {
+    $tag_events = array();
+		foreach($tag_array as $single_tag) {
+			$tmp_tag_events = $api->pastEventsByTag($single_tag, $num_of_years, FALSE);
+			if(count($tmp_tag_events) > 0) {
+				foreach($tmp_tag_events as $tmp_tag_event) {
+					if(!_is_event_included($tmp_tag_event->id, $tag_events)) {
+						$tag_events[] = $tmp_tag_event;
+					}
+				} 
+			}
+		}
+
+		usort($tag_events, "_my_event_compare_desc");
+		foreach($tag_events as $single_event) {
+			$data[] = $api->getEvent($single_event->id, TRUE);
+		}
+    
+    cache_set('uom_events_past_events_data', $data, 'cache', time() + $past_event_caching_time);
+  }
+  
+	$output = theme('uom_event_past_list', array('events' => $data));
 	return $output;   
 }
 
