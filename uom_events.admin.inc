@@ -57,7 +57,7 @@ function uom_events_admin_form() {
   );
 
 	$form['uom_events_past_event_cache'] = array(
-    '#title' => t('Past event: caching'),
+    '#title' => t('Past event: caching (If you change any setting on this page, you may need to refresh the past events listing page a few times)'),
     '#description' => t('Define your past event caching time'),
     '#type' => 'select',
     '#options' => array(0 => 'none', 21600 => '6 hours', 86400 => '1 day'),

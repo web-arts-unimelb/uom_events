@@ -287,7 +287,6 @@
 				base.$el.find('a.prev, a.previous').attr('href', link_string.replace('{page_number}', previous));
 				base.$el.find('a.next').attr('href', link_string.replace('{page_number}', next));
 				base.$el.find('a.last').attr('href', link_string.replace('{page_number}', max_page));
-				
 			}
 
 			// set disable class on appropriate links

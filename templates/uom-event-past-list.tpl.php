@@ -66,13 +66,3 @@
 	
 	echo $total_html;
 ?>
-
-<?php if($total_items > $items_per_page): ?>
-	<div class="event-pager">
-		<a href="#" class="first" data-action="first">&laquo;</a>
-		<a href="#" class="previous" data-action="previous">&lsaquo;</a>
-		<input type="text" readonly="readonly" data-max-page="40" disabled="disabled"/>
-		<a href="#" class="next" data-action="next">&rsaquo;</a>
-		<a href="#" class="last" data-action="last">&raquo;</a>
-	</div>
-<?php endif; ?>
