@@ -32,15 +32,6 @@ function uom_events_admin_form() {
     '#default_value' => variable_get('uom_events_tag', ''),
   );
   
-  $form['uom_events_past_num_of_years'] = array(
-    '#title' => t('How many years from today to past'),
-    '#description' => t('Enter number of years from today to past. e.g. This year is 2013, and you want to go back to 2011. So it will be 3'),
-    '#type' => 'textfield',
-    '#size' => 3,
-    '#default_value' => variable_get('uom_events_past_num_of_years', 1),
-  );
-  
-
   $form['uom_events_blocks'] = array(
     '#title' => t('Event blocks'),
     '#description' => t('Enter the number of event blocks you want use. Each event blok can be configured with its own tag filter'),
@@ -49,8 +40,24 @@ function uom_events_admin_form() {
     '#default_value' => variable_get('uom_events_blocks', 1),
   );
 
+	$form['uom_events_past_event_items_per_page'] = array(
+    '#title' => t('Past events: how many events to display on pagination listing'),
+    '#description' => t('How many events to display on pagination listing'),
+    '#type' => 'textfield',
+    '#size' => 3,
+    '#default_value' => variable_get('uom_events_past_event_items_per_page', 10),
+  );
+
+	$form['uom_events_past_num_of_years'] = array(
+    '#title' => t('Past events: how many years from today to past'),
+    '#description' => t('Enter number of years from today to past. e.g. This year is 2013, and you want to go back to 2011, so it will be 3.'),
+    '#type' => 'textfield',
+    '#size' => 3,
+    '#default_value' => variable_get('uom_events_past_num_of_years', 1),
+  );
+
 	$form['uom_events_past_event_cache'] = array(
-    '#title' => t('Past event caching'),
+    '#title' => t('Past event: caching'),
     '#description' => t('Define your past event caching time'),
     '#type' => 'select',
     '#options' => array(0 => 'none', 21600 => '6 hours', 86400 => '1 day'),

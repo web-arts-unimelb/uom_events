@@ -643,10 +643,12 @@ function uom_events_preprocess_uom_event_past_list(&$variables) {
        ),
      );
   }
-   
-	$variables['total_items'] = count($events);
+  
+	$variables['total_items'] = count($events);	
+	
 	$default_items_per_page = 10;
-	$variables['items_per_page'] = (empty($settings['items_per_page'])) ? $default_items_per_page : $settings['items_per_page'];
+	$items_per_page = variable_get('uom_events_past_event_items_per_page', $default_items_per_page);
+	$variables['items_per_page'] = (empty($items_per_page)) ? $default_items_per_page : $items_per_page;
 }
 
 /**
