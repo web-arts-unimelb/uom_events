@@ -45,6 +45,9 @@
 
 			base.options = $.extend({}, $.jqPagination.defaultOptions, options);
 			
+			//test
+			console.log(options);
+			
 			// if the user hasn't provided a max page number in the options try and find
 			// the data attribute for it, if that cannot be found, use one as a max page number
 			
@@ -227,7 +230,7 @@
 		base.updateInput = function (prevent_paged) {
 			
 			var current_page = parseInt(base.options.current_page, 10);
-							
+								
 			// set the input value
 			base.setInputValue(current_page);
 			
@@ -381,7 +384,7 @@
 		// note: we can only do this to a single element, and not a collection of elements
 
 		if (typeof args[0] === 'string') {
-
+					
 			// if we're dealing with multiple elements, set for all
 			$.each(self, function(){
 				var $plugin = $(this).data('jqPagination');
