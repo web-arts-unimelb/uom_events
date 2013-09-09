@@ -9,23 +9,17 @@
 function uom_events_init() {
   // Attempts to load the EventsAPI library, if available.
   $library = libraries_load('EventsAPI');
-    
-  if(!empty($library['library path'])) {
-  	foreach ($library['files']['php'] as $file) {
-		  require_once $library['library path'] . '/' . $file;
-		}	
+
+  // Load the EventsAPI library.
+  if (!empty($library['library path'])) {
+    foreach ($library['files']['php'] as $file) {
+      require_once $library['library path'] . '/' . $file;
+    }
   }
-  else {      
-		$site_all_path = dirname(dirname(dirname(dirname(__FILE__))));
-		$lib_path = $site_all_path. "/libraries/uom_events_api/EventsAPI.php";
-		if(file_exists($lib_path)) {
-			require_once $lib_path;
-		}
-		else {
-			// Dead silence
-		}
+  else {
+    drupal_set_message(t('The EventsAPI library is required by the the <em>uom_events</em> module, but it cannot be found. Please download it from !download and put it in a directory called <em>EventsAPI</em> in your libraries folder.', array('!download' => l($library['download url'], $library['download url']))), 'error');
   }
-  
+
   drupal_add_css(drupal_get_path('module', 'uom_events') . '/css/uom_events.css');
 }
 
@@ -202,7 +196,6 @@ function uom_events_libraries_info() {
     'name' => 'UoM Events API',
     'vendor url' => 'http://events.unimelb.edu.au/',
     'download url' => 'https://github.com/cafuego/uom_events_api',
-    'path' => 'EventsAPI',
     'version arguments' => array(
       'file' => 'EventsAPI.php',
       // Best practice: Document the actual version strings for later reference.
