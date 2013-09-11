@@ -8,10 +8,10 @@
  */
 function uom_events_init() {
   // Attempts to load the EventsAPI library, if available.
-  $library = libraries_load('EventsAPI');
+  $library = libraries_detect('EventsAPI');
 
   // Load the EventsAPI library.
-  if (!empty($library['library path'])) {
+  if (!empty($library['installed']) && !empty($library['library path'])) {
     foreach ($library['files']['php'] as $file) {
       require_once $library['library path'] . '/' . $file;
     }
