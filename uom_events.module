@@ -943,16 +943,11 @@ function _is_event_included($event_id, $events) {
 	return false;
 }
 
-function _add_pagination_script() {
-	$scripts = drupal_add_js();
-	$jqpage_path = drupal_get_path('module', 'uom_events') . '/js/jquery.jqpagination.js';
-	$controller_path = drupal_get_path('module', 'uom_events') . '/js/controller.js';
-	
-  if(!isset($scripts[$jqpage_path])) {
-    drupal_add_js($jqpage_path);
-  }
+function _add_event_javascript($script_name) {
+  $scripts = drupal_add_js();
+  $script_path = drupal_get_path('module', 'uom_events') . '/js/'. $script_name;
 
-	if(!isset($scripts[$controller_path])) {
-    drupal_add_js($controller_path);
+  if(!isset($scripts[$script_path])) {
+    drupal_add_js($script_path);
   }
 }

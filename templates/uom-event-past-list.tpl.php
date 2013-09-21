@@ -20,7 +20,8 @@
 ?>
 
 <?php
-	_add_pagination_script();
+  _add_event_javascript('jquery.jqpagination.js');
+  _add_event_javascript('past_event_pager.js');        
 ?>
 
 <?php if($total_items > $items_per_page): ?>

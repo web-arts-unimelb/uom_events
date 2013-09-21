@@ -1,6 +1,5 @@
 jQuery(document).ready(function () {
-	jQuery('.uom-events .part-events:not(:first)').hide();
-
+	// Start past events 
 	jQuery('#event-pager-top').jqPagination({
 		page_string : '{current_page} of {max_page}',
     max_page : jQuery('.uom-events .part-events').length,
@@ -22,7 +21,7 @@ jQuery(document).ready(function () {
     }
 	});
 	
-	// Start event-pager-top ------------------------------------------------------------------
+	// Start event-pager-top
 	jQuery('#event-pager-top a.first').on('click', function(){
 		var curr_page_num = 1;
 		jQuery('#event-pager-bottom').jqPagination('option', {current_page : curr_page_num});	
@@ -56,10 +55,10 @@ jQuery(document).ready(function () {
 		var curr_page_num = parseInt(jQuery('.uom-events .part-events').length, 10);
 		jQuery('#event-pager-bottom').jqPagination('option', {current_page : curr_page_num});	
 	});
-	// End event-pager-top ------------------------------------------------------------------
+	// End event-pager-top
 	
 	
-	// Start event-pager-bottom ------------------------------------------------------------------
+	// Start event-pager-bottom
 	jQuery('#event-pager-bottom a.first').on('click', function(){
 		var curr_page_num = 1;
 		jQuery('#event-pager-top').jqPagination('option', {current_page : curr_page_num});	
@@ -93,5 +92,6 @@ jQuery(document).ready(function () {
 		var curr_page_num = parseInt(jQuery('.uom-events .part-events').length, 10);
 		jQuery('#event-pager-top').jqPagination('option', {current_page : curr_page_num});	
 	});
-	// End event-pager-bottom ------------------------------------------------------------------
+	// End event-pager-bottom
+	// End past event
 });
