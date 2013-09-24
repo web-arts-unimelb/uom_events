@@ -347,13 +347,23 @@ function uom_events_block_view($delta = '') {
   if (!empty($settings['number'])) {
     $data = array_slice($data, 0, $settings['number']);
   }
-  $output = theme('uom_event_block', array('events' => $data, 'settings' => $settings));
 
-  // Output block HTML
-  return array(
-    'subject' => t('Events @delta', array('@delta' => $delta)),
-    'content' => '<div id="uom-events-' . $delta . '">' . $output . '</div>',
-  );
+	if (count($data) <= 0) {
+		// If no data at all, do not display
+		return array(
+      'subject' => '',
+      'content' => '',
+    );
+	}
+	else {
+		$output = theme('uom_event_block', array('events' => $data, 'settings' => $settings));
+
+  	// Output block HTML
+		return array(
+    	'subject' => t('Events @delta', array('@delta' => $delta)),
+    	'content' => '<div id="uom-events-' . $delta . '">' . $output . '</div>',
+  	);
+	}
 }
 
 /**
