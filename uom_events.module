@@ -292,6 +292,7 @@ function uom_events_block_save($delta = '', $edit = array()) {
     'number'      => $edit['number'],
     'more'        => $edit['more'],
     'items_per_page' => $edit['items_per_page'],
+    'logic'				=> $edit['logic'],
   );
   variable_set('uom_events_block_' . $delta, $settings);
 }
@@ -341,27 +342,41 @@ function uom_events_block_view($delta = '') {
 	$data = array();
   if(!empty($settings['tag'])) {
   	$tag_array = _build_tag_array($settings['tag']);
-  	foreach($tag_array as $tag) {
-    	$single_tag_data = $api->currentEventsByTag($tag);
-
-			if(is_array($single_tag_data)) {
-    		if(count($single_tag_data) > 0) {
-    			foreach($single_tag_data as $single_event) {
-    				if(!_is_event_included($single_event->id, $data)) {
-    					$data[] = $single_event;
-    				}
-    			}
-					usort($data, "_my_event_compare_asc");
-    		}
-			}
-			else {
-				// Data is not an array, early return.
-				return array(
-        	'subject' => '',
-        	'content' => '',
-      	);	
-			}
-    }
+  	
+  	// And condition
+  	if($logic_setting === 'and') {
+  		$multi_tag_data = array();
+  		foreach($tag_array as $tag) {
+  			$multi_tag_data[] = $api->currentEventsByTag($tag);
+  		}
+  		
+  		$multi_tag_data[] = '_my_event_id_compare'; // Put it into last
+  		$data = call_user_func_array('array_uintersect', $multi_tag_data);
+  		usort($data, "_my_event_compare_asc");
+  	}
+  	else {
+  		// Or condition
+  		foreach($tag_array as $tag) {
+				$single_tag_data = $api->currentEventsByTag($tag);
+				if(is_array($single_tag_data)) {
+					if(count($single_tag_data) > 0) {
+						foreach($single_tag_data as $single_event) {
+							if(!_is_event_included($single_event->id, $data)) {
+								$data[] = $single_event;
+							}
+						}
+						usort($data, "_my_event_compare_asc");
+					}
+				}
+				else {
+					// Data is not an array, early return.
+					return array(
+			    	'subject' => '',
+			    	'content' => '',
+			  	);	
+				}
+		  }
+  	}
   }
   else {
     $data = $api->currentEvents();
@@ -415,6 +430,19 @@ function _get_home_block_event_data($api, $tag_string = "") {
 	}
 
 	return $data;
+}
+
+
+function _my_event_id_compare($a, $b) {
+	$a_id = $a->id;
+	$b_id = $b->id;
+
+	if($a_id > $b_id)
+		return 1;
+	elseif($a_id === $b_id)
+		return 0;
+	else
+		return -1;
 }
 
 /**
