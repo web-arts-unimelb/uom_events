@@ -329,15 +329,25 @@ function uom_events_block_view($delta = '') {
   	$tag_array = _build_tag_array($settings['tag']);
   	foreach($tag_array as $tag) {
     	$single_tag_data = $api->currentEventsByTag($tag);
-    	if(count($single_tag_data) > 0) {
-    		foreach($single_tag_data as $single_event) {
-    			if(!_is_event_included($single_event->id, $data)) {
-    				$data[] = $single_event;
+
+			if(is_array($single_tag_data)) {
+    		if(count($single_tag_data) > 0) {
+    			foreach($single_tag_data as $single_event) {
+    				if(!_is_event_included($single_event->id, $data)) {
+    					$data[] = $single_event;
+    				}
     			}
+					usort($data, "_my_event_compare_asc");
     		}
-    	}
+			}
+			else {
+				// Data is not an array, early return.
+				return array(
+        	'subject' => '',
+        	'content' => '',
+      	);	
+			}
     }
-		usort($data, "_my_event_compare_asc");
   }
   else {
     $data = $api->currentEvents();
