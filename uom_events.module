@@ -246,6 +246,15 @@ function uom_events_block_configure($delta = '') {
     '#default_value' => $settings['tag'],
     '#description' => t('Enter the tag to filter events for this block.'),
   );
+
+	$form['logic'] = array(
+    '#title' => t('Tag logic'),
+    '#description' => t('The logic among the event tags'),
+    '#type' => 'radios',
+    '#default_value' => $settings['logic'],
+    '#options' => array('or' => t('OR condition'), 'and' => t('AND condition')),
+  );
+
   $form['number'] = array(
     '#type' => 'textfield',
     '#size' => 2,
@@ -294,6 +303,11 @@ function uom_events_block_view($delta = '') {
   // Load settings for the current block.
   $settings = variable_get('uom_events_block_' . $delta, array());
   $settings['delta'] = $delta;
+	
+	$logic_setting = $settings['logic'];
+	if (empty($logic_setting)) {
+		$logic_setting = 'or';
+	}
 
   // Grab some events via the API.
   $api = uom_events_api();
