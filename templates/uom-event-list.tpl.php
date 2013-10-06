@@ -38,6 +38,9 @@
 			<br/><strong>Location:</strong> <?php print $event['location']; ?>
 		<?php endif; ?>	
 	</div>
-
 <?php endforeach; ?>
 
+<?php if(count($events) <= 0): ?>
+	<br/>
+	<p>There is no upcoming events.</p>
+<?php endif; ?>
