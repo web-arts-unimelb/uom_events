@@ -84,6 +84,7 @@ function uom_events_past_page() {
 
 		usort($tag_events, "_my_event_compare_desc");
     cache_set('uom_events_past_events_data', $tag_events, 'cache', time() + $past_event_caching_time);
+		$data = $tag_events;
   }
   
 	$output = theme('uom_event_past_list', array('events' => $data));
