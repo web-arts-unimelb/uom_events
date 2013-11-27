@@ -58,7 +58,7 @@ function theme_uom_event_location_inline($variables) {
 		$output = "";
 	}
 	else {
-		$output = implode(", ", $items);
+		$output = '<h3>Location</h3>'. implode(", ", $items);
 	}	
 
 	return $output;
@@ -71,30 +71,66 @@ function theme_uom_event_information($variables) {
   $information = $variables['information'];
   $items       = array();
 
-  $title = t('Information');
+  $title = t('Contact');
   $attributes = array('class' => array('uom-event-information'));
   $type = 'ul';
 
   if (!empty($information->email)) {
+		$data = t('Email: '). l($information->email, 'mailto:' . $information->email);
     $items[] = array(
-      'data'  => l($information->email, 'mailto:' . $information->email),
+      'data'  => $data,
       'class' => array('email'),
     );
   }
   if (!empty($information->phone)) {
+		$data = t('Phone: '). ( (module_exists('unimelb_formatters')) ? unimelb_formatters_field_formatter_unimelb_html5_phone_link(array('safe_value' => $information->phone)) : $information->phone );
     $items[] = array(
-      'data'  => (module_exists('unimelb_formatters')) ? unimelb_formatters_field_formatter_unimelb_html5_phone_link(array('safe_value' => $information->phone)) : $information->phone,
+      'data'  => $data, 
       'class' => array('phone'),
     );
   }
   if (!empty($information->url)) {
+		$data = t('URL: '). l($information->url, $information->url); 
     $items[] = array(
-      'data'  => l($information->url, $information->url),
+      'data'  => $data,
       'class' => array('url'),
     );
   }
 
   return (empty($items)) ? '' : theme_item_list(array('items' => $items, 'title' => $title, 'type' => $type, 'attributes' => $attributes));
+}
+
+/**
+ * Basic theme function to list presenters within an event. 
+ */
+function theme_uom_event_presenters_in_event($variables) {
+	$return_html = '';
+	$presenters = $variables['presenters'];
+
+	$items = array();
+	$title = t('Presenters');
+	$attributes = array('class' => array('uom-event-presenter'));
+  $type = 'ul';
+
+	if(is_array($presenters) && count($presenters) > 0) {
+		foreach($presenters as $presenter) {
+			$full_name = t('@title @first @last @post', array('@title' => $presenter->title, '@first' => $presenter->first_name, '@last' => $presenter->last_name, '@post' => $presenter->post_nominal));
+			$link = $presenter->link;
+			$data = l($full_name, $link);
+
+			$items[] = array(
+				'data' => $data,
+				'class' => array('presenter'),
+			);
+		}
+		
+		$return_html = theme_item_list(array('items' => $items, 'title' => $title, 'type' => $type, 'attributes' => $attributes));
+	}
+	else {
+		$return_html = '';		
+	}
+
+	return $return_html;
 }
 
 /**
