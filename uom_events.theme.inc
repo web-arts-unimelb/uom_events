@@ -58,7 +58,7 @@ function theme_uom_event_location_inline($variables) {
 		$output = "";
 	}
 	else {
-		$output = '<h3>Location</h3>'. implode(", ", $items);
+		$output = implode(", ", $items);
 	}	
 
 	return $output;
@@ -76,21 +76,21 @@ function theme_uom_event_information($variables) {
   $type = 'ul';
 
   if (!empty($information->email)) {
-		$data = t('Email: '). l($information->email, 'mailto:' . $information->email);
+		$data = '<strong>'. t('Email: '). '</strong>'. l($information->email, 'mailto:' . $information->email);
     $items[] = array(
       'data'  => $data,
       'class' => array('email'),
     );
   }
   if (!empty($information->phone)) {
-		$data = t('Phone: '). ( (module_exists('unimelb_formatters')) ? unimelb_formatters_field_formatter_unimelb_html5_phone_link(array('safe_value' => $information->phone)) : $information->phone );
+		$data = '<strong>'. t('Phone: '). '</strong>'. ( (module_exists('unimelb_formatters')) ? unimelb_formatters_field_formatter_unimelb_html5_phone_link(array('safe_value' => $information->phone)) : $information->phone );
     $items[] = array(
       'data'  => $data, 
       'class' => array('phone'),
     );
   }
   if (!empty($information->url)) {
-		$data = t('URL: '). l($information->url, $information->url); 
+		$data = '<strong>'. t('URL: '). '</strong>'. l($information->url, $information->url); 
     $items[] = array(
       'data'  => $data,
       'class' => array('url'),

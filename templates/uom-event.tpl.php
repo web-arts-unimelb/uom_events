@@ -37,8 +37,14 @@
   <?php endif; ?>
 
   <?php print $information; ?>
+  
+	<?php
+		if(!empty($location)) {
+			print '<p>'. '<h3>Location</h3>'. $location. '</p>';
+		} 
+	?>
+ 	
+	<?php print $booking; ?>
 	<?php print $presenters; ?>
-  <?php print $location; ?>
-  <?php print $booking; ?>
 </div>
 
