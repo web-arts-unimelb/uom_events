@@ -37,7 +37,8 @@
 		
 		// get input jQuery object
 		base.$input = base.$el.find('input');
-
+		base.$current_page_display = base.$el.find('.current_page_display'); // Gary	
+		
 		// Add a reverse reference to the DOM object
 		base.$el.data("jqPagination", base);
 
@@ -46,7 +47,7 @@
 			base.options = $.extend({}, $.jqPagination.defaultOptions, options);
 			
 			//test
-			console.log(options);
+			//console.log(options);
 			
 			// if the user hasn't provided a max page number in the options try and find
 			// the data attribute for it, if that cannot be found, use one as a max page number
@@ -258,7 +259,7 @@
 				.replace("{max_page}", max_page);
 			
 			base.$input.val(page_string);
-		
+			base.$current_page_display.text(page_string);	// Gary
 		};
 		
 		base.isNumber = function(n) {
