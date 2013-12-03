@@ -537,6 +537,45 @@ function uom_events_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Implements hook_flush_caches().
+ */
+function uom_events_flush_caches() {
+  return array('cache_uom_events');
+}
+
+/**
+ * Implements hook_admin_menu_cache_info().
+ */
+function uom_events_admin_menu_cache_info() {
+  // http://api.drupalize.me/api/drupal/function/hook_admin_menu_cache_info/7
+  // Return an associative array whose keys denote internal identifiers for a particular caches (which can be freely defined, but should be in a module's namespace) and whose values are associative arrays containing
+  $caches['uom_events_update'] = array(
+    'title' => t('Events API'),
+    'callback' => '_uom_events_cache_clear',
+  );
+  return $caches;
+}
+
+/**
+ * Callback to clear the uom_events cache.
+ */
+function _uom_events_cache_clear($cid = NULL, $wildcard = FALSE) {
+  if (empty($cid)) {
+    db_delete('cache_uom_events')->execute();
+  }
+  else {
+    $query = db_delete('cache_uom_events');
+    if ($wildcard) {
+      $query->condition('cid', $cid . '%', 'LIKE');
+    }
+    else {
+      $query->condition('cid', $cid);
+    }
+    $query->execute();
+  }
+}
+
+/**
  * Helper that fetches data via drupal_http_request() and optionally
  * caches the result.
  *
@@ -552,7 +591,7 @@ function uom_events_fetcher($url, $options) {
   $period = variable_get('cache_lifetime', 0);
 
   $hash = md5($url);
-  if ($period  && $cache = cache_get('uom_events:' . $hash)) {
+  if ($period && $cache = cache_get('uom_events:' . $hash, 'cache_uom_events')) {
     return $cache->data;
   }
   else {
@@ -560,10 +599,13 @@ function uom_events_fetcher($url, $options) {
     if ($response->code != 200) {
       watchdog('uom_events', 'Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message));
       // drupal_set_message(t('Unable to fetch event data from API. Error @code: @status', array('@code' => $response->code, '@status' => $response->status_message)));
+      if ($cache = cache_get('uom_events:' . $hash, 'cache_uom_events')) {
+        return $cache->data;
+      }
     }
     elseif ($period) {
       // Cache it for at least 15 minutes, but really should have tweakable expiry.
-      cache_set('uom_events:' . $hash, $response, 'cache', time() + $period);
+      cache_set('uom_events:' . $hash, $response, 'cache_uom_events', time() + $period);
     }
   }
   return $response;

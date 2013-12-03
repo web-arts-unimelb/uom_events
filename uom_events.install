@@ -4,6 +4,15 @@
  */
 
 /**
+ * Implements hook_schema().
+ */
+function uom_events_schema() {
+  $schema = array();
+  $schema['cache_uom_events'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
  * Implements hook_requirements().
  */
 function uom_events_requirements($phase) {
@@ -31,4 +40,12 @@ function uom_events_requirements($phase) {
  */
 function uom_events_uninstall() {
   variable_del('uom_events_token');
+}
+
+/**
+ * Create a cache for Event queries.
+ */
+function uom_events_update_7000() {
+  drupal_install_schema('uom_events');
+  return t('Created a cache for the Events API.');
 }
