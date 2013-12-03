@@ -312,6 +312,7 @@ function uom_events_block_view($delta = '') {
 
   // Grab some events via the API.
   $api = uom_events_api();
+  $api->displayFull();
 
   // Do an early return for the metadata block.
   if ($delta == 'meta') {
@@ -679,6 +680,8 @@ function uom_events_preprocess_uom_event(&$variables) {
 
   $variables['dates']['start']    = uom_events_date_fiddle($timestamp_start);
   $variables['dates']['end']      = uom_events_date_fiddle($timestamp_end);
+
+  $variables['teaser']            = (empty($event->description_text)) ? '' : _uom_events_teaser($event->description_text, 60);
 }
 
 /*
@@ -728,6 +731,7 @@ function uom_events_preprocess_uom_event_past_list(&$variables) {
                                'start' => uom_events_date_fiddle($timestamp_start),
                                'end'   => uom_events_date_fiddle($timestamp_end),
        ),
+       'teaser'           => (empty($event->description_text)) ? '' : _uom_events_teaser($event->description_text, 60),
      );
   }
   
@@ -785,6 +789,7 @@ function uom_events_preprocess_uom_event_list(&$variables) {
                               'start' => uom_events_date_fiddle($timestamp_start),
                               'end'   => uom_events_date_fiddle($timestamp_end),
       ),
+      'teaser'           => (empty($event->description_text)) ? '' : _uom_events_teaser($event->description_text, 60),
     );
   }
 }
@@ -829,6 +834,7 @@ function uom_events_preprocess_uom_event_block(&$variables) {
                               'start' => uom_events_date_fiddle($timestamp_start),
                               'end'   => uom_events_date_fiddle($timestamp_end),
                             ),
+      'teaser'           => (empty($event->description_text)) ? '' : _uom_events_teaser($event->description_text, 60),
     );
   }
   
@@ -1037,6 +1043,13 @@ function _is_event_included($event_id, $events) {
 	return false;
 }
 
+/**
+ * Helper (called from tpl.php) that adds js to a page.
+ *
+ * @TODO: Move into #attached in hook_block_view_alter().
+ * @see https://api.drupal.org/api/drupal/modules!block!block.api.php/function/hook_block_view_alter/7
+ * @see https://api.drupal.org/comment/44413#comment-44413
+ */
 function _add_event_javascript($script_name) {
   $scripts = drupal_add_js();
   $script_path = drupal_get_path('module', 'uom_events') . '/js/'. $script_name;
@@ -1044,4 +1057,21 @@ function _add_event_javascript($script_name) {
   if(!isset($scripts[$script_path])) {
     drupal_add_js($script_path);
   }
+}
+
+/**
+ * Helper that returns a trimmed text string.
+ */
+function _uom_events_teaser($text, $length = 200) {
+  if (module_exists('views')) {
+    $alter = array(
+      'max_length'    => $length,
+      'word_boundary' => TRUE,
+      'ellipsis'      => TRUE,
+      'html'          => FALSE,
+    );
+    return views_trim_text($alter, $text);
+  }
+
+  return text_summary(check_plain($text, NULL, $length));
 }

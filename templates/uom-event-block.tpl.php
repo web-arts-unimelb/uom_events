@@ -62,9 +62,15 @@
 							<span class=\"date-display-single\">$e_year</span>
 						</div>
 					</div>
-					<strong><a href=\"$e_link\">$e_title</a></strong>
-				</div>
-			";
+          <strong><a href=\"$e_link\">$e_title</a></strong>";
+
+      // Show teaser if present.
+      if (!empty($event['teaser'])) {
+        $event_html .= '<br />' . $event['teaser'];
+      }
+
+			$event_html .= "</div>";
+
 			$part_html .= $event_html;
 		}
 		$part_html .= "</div>";
