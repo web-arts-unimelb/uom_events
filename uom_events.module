@@ -304,11 +304,16 @@ function uom_events_block_view($delta = '') {
   // Load settings for the current block.
   $settings = variable_get('uom_events_block_' . $delta, array());
   $settings['delta'] = $delta;
-	
-	$logic_setting = $settings['logic'];
-	if (empty($logic_setting)) {
-		$logic_setting = 'or';
+
+	if(isset($settings['logic'])) {	
+		$logic_setting = $settings['logic'];
+		if (empty($logic_setting)) {
+			$logic_setting = 'or';
+		}
 	}
+	else {
+		$logic_setting = 'or';
+	}	
 
   // Grab some events via the API.
   $api = uom_events_api();
