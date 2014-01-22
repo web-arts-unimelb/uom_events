@@ -359,6 +359,9 @@ function uom_events_block_view($delta = '') {
   		$multi_tag_data[] = '_my_event_id_compare'; // Put it into last
   		$data = call_user_func_array('array_uintersect', $multi_tag_data);
   		usort($data, "_my_event_compare_asc");
+
+			// Remove non public events
+      $data = array_filter($data, '_uom_events_filter_public_event_callback');
   	}
   	else {
   		// Or condition
@@ -372,6 +375,9 @@ function uom_events_block_view($delta = '') {
 							}
 						}
 						usort($data, "_my_event_compare_asc");
+
+						// Remove non public events
+						$data = array_filter($data, '_uom_events_filter_public_event_callback');
 					}
 				}
 				else {
@@ -1079,4 +1085,11 @@ function _uom_events_teaser($text, $length = 200) {
   }
 
   return text_summary(check_plain($text, NULL, $length));
+}
+
+function _uom_events_filter_public_event_callback($element) {
+	if(isset($element->public) && $element->public === TRUE) {
+    return TRUE;
+  }
+  return FALSE;
 }

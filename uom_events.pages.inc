@@ -35,6 +35,9 @@ function uom_events_page($id = NULL) {
 		  	}
 		  }
 			usort($tmp_data, "_my_event_compare_asc");
+			// Remove non public events
+      $tmp_data = array_filter($tmp_data, '_uom_events_filter_public_event_callback');
+
       drupal_set_title(t('@tag Events', array('@tag' => ucwords($tag))));
     }
     else {
@@ -83,6 +86,8 @@ function uom_events_past_page() {
 		}
 
 		usort($tag_events, "_my_event_compare_desc");
+		// Remove non public events
+    $tag_events = array_filter($tag_events, '_uom_events_filter_public_event_callback');
     cache_set('uom_events_past_events_data', $tag_events, 'cache', time() + $past_event_caching_time);
 		$data = $tag_events;
   }
