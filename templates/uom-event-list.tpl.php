@@ -42,5 +42,5 @@
 
 <?php if(count($events) <= 0): ?>
 	<br/>
-	<p>There is no upcoming events.</p>
+	<p>There are no upcoming events.</p>
 <?php endif; ?>
