@@ -806,6 +806,10 @@ function uom_events_preprocess_uom_event_list(&$variables) {
       'teaser'           => (empty($event->description_text)) ? '' : _uom_events_teaser($event->description_text, 60),
     );
   }
+
+	// Set title and assume this is always upcoming events.
+	$the_title = t('Upcoming events');
+	drupal_set_title($the_title);
 }
 
 /**
