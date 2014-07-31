@@ -255,6 +255,14 @@ function uom_events_block_configure($delta = '') {
     '#options' => array('or' => t('OR condition'), 'and' => t('AND condition')),
   );
 
+	$form['include_past_event'] = array(
+    '#title' => t('Include past events'),
+    '#description' => t('Should it include past events?'),
+    '#type' => 'radios',
+    '#default_value' => $settings['include_past_event'],
+    '#options' => array('yes' => t('Yes'), 'no' => t('No')),
+  );
+
   $form['number'] = array(
     '#type' => 'textfield',
     '#size' => 2,
@@ -291,8 +299,10 @@ function uom_events_block_save($delta = '', $edit = array()) {
     'tag'         => $edit['tag'],
     'number'      => $edit['number'],
     'more'        => $edit['more'],
+
     'items_per_page' => $edit['items_per_page'],
-    'logic'				=> $edit['logic'],
+    'logic' => $edit['logic'],
+		'include_past_event' => $edit['include_past_event'],
   );
   variable_set('uom_events_block_' . $delta, $settings);
 }
@@ -305,6 +315,8 @@ function uom_events_block_view($delta = '') {
   $settings = variable_get('uom_events_block_' . $delta, array());
   $settings['delta'] = $delta;
 
+
+	// Logic
 	if(isset($settings['logic'])) {	
 		$logic_setting = $settings['logic'];
 		if (empty($logic_setting)) {
@@ -314,6 +326,22 @@ function uom_events_block_view($delta = '') {
 	else {
 		$logic_setting = 'or';
 	}	
+
+
+	// Include past events?
+	if(isset($settings['include_past_event'])) {
+		$include_past_event_setting = $settings['include_past_event'];
+		if(empty($include_past_event_setting)) {
+			$include_past_event_setting = 'yes';
+		}
+		else {
+			// It is no
+		}
+	}
+	else {
+		$include_past_event_setting = 'yes';
+	}
+
 
   // Grab some events via the API.
   $api = uom_events_api();
@@ -403,7 +431,7 @@ function uom_events_block_view($delta = '') {
   }
 
 	if (count($data) <= 0) {
-		if($delta === '0') {
+		if($delta === '0' && $include_past_event === 'yes') {
 			$old_data = _get_home_block_event_data($api, $settings['tag']); 
 			$output = theme('uom_event_block', array('events' => $old_data, 'settings' => $settings));			
 
