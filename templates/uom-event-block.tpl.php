@@ -74,11 +74,12 @@
 
 			$part_html .= $event_html;
 		}
+
 		$part_html .= "</div>";
 		$total_html .= $part_html;
 	}
-	$total_html .= "</div>";
-	
+	$total_html .= $more. "</div>";
+
 	echo $total_html;
 ?>
 

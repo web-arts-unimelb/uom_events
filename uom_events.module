@@ -851,7 +851,7 @@ function uom_events_preprocess_uom_event_block(&$variables) {
   $path = variable_get('uom_events_path', 'events');
 
   $variables['delta'] = $settings['delta'];
-  $variables['more']  = (empty($settings['more'])) ? '' : l(t('More »'), $settings['more']);
+  $variables['more']  = (empty($settings['more'])) ? '' : l(t('More events...'), $settings['more']);
 
   // Process the list of event objects into an array of template variables.
   // Wednesday, May 22, 2013 - 18:00–19:00
