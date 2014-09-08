@@ -32,6 +32,19 @@
 	clear:left;
 }
 
+/* http://css-tricks.com/snippets/css/cross-browser-min-height/ */
+.uom-event {
+  clear:left;
+  height: auto !important;
+  height: 68px;
+  min-height: 68px;
+}
+
+/* Mozilla only */
+.uom-event, x:-moz-any-link, x:default {
+  margin-bottom: 10px;
+}
+
 .event-pager {
 	margin-bottom: 10px;
 }
