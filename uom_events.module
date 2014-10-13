@@ -431,7 +431,7 @@ function uom_events_block_view($delta = '') {
   }
 
 	if (count($data) <= 0) {
-		if($delta === '0' && $include_past_event === 'yes') {
+		if($delta === '0' && $include_past_event_setting === 'yes') {
 			$old_data = _get_home_block_event_data($api, $settings['tag']); 
 			$output = theme('uom_event_block', array('events' => $old_data, 'settings' => $settings));			
 
