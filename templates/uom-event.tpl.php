@@ -35,9 +35,16 @@
   <?php if ($description_html): ?>
     <?php print $description_html; ?>
   <?php endif; ?>
-
-  <?php print $information; ?>
   
+  <?php if($information): ?>
+    <?php print $information; ?>
+  <?php endif; ?>  
+
+  <?php if($type): ?>
+    <h3>Event type</h3>
+    <?php print $type; ?>
+  <?php endif; ?>
+
 	<?php
 		if(!empty($location)) {
 			print '<p>'. '<h3>Location</h3>'. $location. '</p>';
